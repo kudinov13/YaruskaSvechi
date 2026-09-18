@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+GIT_DIR=/srv/git/yaruska.git
+WORK=/opt/yaruska-build
+WEB=/var/www/yaruska
+
+echo "==> Deploy started"
+git --work-tree=$WORK --git-dir=$GIT_DIR checkout -f main
+cd $WORK
+echo "==> Installing dependencies"
+npm ci --no-audit --no-fund
+echo "==> Building"
+npm run build
+echo "==> Publishing to $WEB"
+rsync -a --delete $WORK/dist/ $WEB/
+echo "==> Deploy finished"
