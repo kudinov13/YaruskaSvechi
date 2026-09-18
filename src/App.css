@@ -274,6 +274,13 @@ a:hover .placeholder-frame, .product-card:hover .placeholder-frame { background:
 [data-reveal].is-visible { opacity: 1; transform: translateY(0); }
 @keyframes scrollDot { 0%, 100% { opacity: .3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(30px); } }
 
+/* ===== Admin product grids ===== */
+.admin-candle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
 /* ===== Tablet ===== */
 @media (max-width: 1050px) {
   :root { --shell: min(100% - 60px, 1000px); }
@@ -319,6 +326,11 @@ a:hover .placeholder-frame, .product-card:hover .placeholder-frame { background:
   :root { --shell: 100%; }
   html, body { overflow-x: hidden; max-width: 100%; overscroll-behavior-x: none; touch-action: pan-y; }
   .shell { width: 100%; max-width: 100%; padding-inline: 16px; box-sizing: border-box; margin-inline: 0; }
+
+  .admin-candle-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
 
   /* Prevent any element from causing horizontal scroll */
   main { overflow-x: hidden; max-width: 100%; overscroll-behavior-x: none; touch-action: pan-y; }

@@ -115,7 +115,7 @@ export default function AdminPage() {
             )}
 
             {loading ? <p>Загрузка…</p> : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '10px' }}>
+              <div className="admin-candle-grid">
                 {candles.map((item) => (
                   <div key={item.id} style={{ border: '1px solid rgba(91,45,35,.15)', padding: '10px', background: 'rgba(255,255,255,.4)', position: 'relative' }}>
                     {item.featured && <span title="Популярный товар" style={{ position: 'absolute', top: '6px', right: '6px', zIndex: 1, background: '#5b2d23', color: '#eee8df', fontSize: '.62rem', padding: '3px 6px' }}>★</span>}
@@ -141,7 +141,7 @@ export default function AdminPage() {
             <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.4rem', marginBottom: '8px' }}>Популярные свечи</h3>
             <p style={{ opacity: .6, marginBottom: '20px', fontSize: '.9rem' }}>Отметьте товары, которые показываются в блоке «Популярные свечи» на главной. Добавляются только существующие товары.</p>
             {loading ? <p>Загрузка…</p> : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '10px' }}>
+              <div className="admin-candle-grid">
                 {candles.map((item) => (
                   <div key={item.id} style={{ border: item.featured ? '2px solid #5b2d23' : '1px solid rgba(91,45,35,.15)', padding: '10px', background: 'rgba(255,255,255,.4)', position: 'relative' }}>
                     {item.featured && <span style={{ position: 'absolute', top: '6px', right: '6px', background: '#5b2d23', color: '#eee8df', fontSize: '.62rem', padding: '3px 6px' }}>★</span>}
