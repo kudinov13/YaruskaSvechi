@@ -306,16 +306,16 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
             <p style={{ fontSize: '.85rem', opacity: .6, marginBottom: '10px' }}>Первое фото — главное (показывается на карточке). Стрелки меняют порядок.</p>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               {images.map((img, i) => (
-                <div key={i} style={{ width: '110px', flexShrink: 0 }}>
-                  <div style={{ position: 'relative', width: '110px', height: '110px' }}>
+                <div key={i} style={{ width: '84px', flexShrink: 0 }}>
+                  <div style={{ display: 'flex', gap: '4px', marginBottom: '6px' }}>
+                    <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0} style={{ flex: 1, minHeight: '44px', cursor: 'pointer', border: '1px solid rgba(91,45,35,.3)', background: 'transparent', fontFamily: 'inherit', fontSize: '1.15rem', opacity: i === 0 ? .3 : 1 }} aria-label="Влево">←</button>
+                    <button type="button" onClick={() => moveImage(i, 1)} disabled={i === images.length - 1} style={{ flex: 1, minHeight: '44px', cursor: 'pointer', border: '1px solid rgba(91,45,35,.3)', background: 'transparent', fontFamily: 'inherit', fontSize: '1.15rem', opacity: i === images.length - 1 ? .3 : 1 }} aria-label="Вправо">→</button>
+                  </div>
+                  <div style={{ position: 'relative', width: '84px', height: '84px' }}>
                     <img src={imgUrl(img)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
-                    {i === 0 && <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(91,45,35,.9)', color: '#eee8df', fontSize: '.68rem', textAlign: 'center', padding: '4px 0', letterSpacing: '.05em' }}>Главное</span>}
+                    {i === 0 && <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(91,45,35,.9)', color: '#eee8df', fontSize: '.62rem', textAlign: 'center', padding: '3px 0', letterSpacing: '.05em' }}>Главное</span>}
                   </div>
-                  <div style={{ display: 'flex', gap: '4px', marginTop: '6px' }}>
-                    <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0} style={{ flex: 1, minHeight: '36px', cursor: 'pointer', border: '1px solid rgba(91,45,35,.25)', background: 'transparent', fontFamily: 'inherit', fontSize: '1rem', opacity: i === 0 ? .3 : 1 }} aria-label="Влево">←</button>
-                    <button type="button" onClick={() => moveImage(i, 1)} disabled={i === images.length - 1} style={{ flex: 1, minHeight: '36px', cursor: 'pointer', border: '1px solid rgba(91,45,35,.25)', background: 'transparent', fontFamily: 'inherit', fontSize: '1rem', opacity: i === images.length - 1 ? .3 : 1 }} aria-label="Вправо">→</button>
-                  </div>
-                  <button type="button" onClick={() => removeImage(i)} style={{ width: '100%', minHeight: '36px', marginTop: '4px', cursor: 'pointer', border: '1px solid #8b2a2a', background: 'transparent', color: '#8b2a2a', fontFamily: 'inherit', fontSize: '.8rem' }}>Удалить</button>
+                  <button type="button" onClick={() => removeImage(i)} style={{ width: '100%', minHeight: '40px', marginTop: '8px', cursor: 'pointer', border: '1px solid #8b2a2a', background: 'transparent', color: '#8b2a2a', fontFamily: 'inherit', fontSize: '.8rem' }}>Удалить</button>
                 </div>
               ))}
             </div>
