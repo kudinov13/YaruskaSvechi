@@ -1,4 +1,4 @@
-﻿import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { api, setToken, clearToken } from '../lib/api'
 
 type User = { id: string; email: string; name: string; role?: 'USER' | 'ADMIN'; isAdmin?: boolean; phone?: string }

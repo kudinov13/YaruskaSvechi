@@ -1,4 +1,4 @@
-﻿import { Router } from 'express'
+import { Router } from 'express'
 import { z } from 'zod'
 import { prisma } from '../db.js'
 import { authRequired } from '../middleware/auth.js'
