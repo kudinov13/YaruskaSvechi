@@ -77,8 +77,8 @@ model OrderItem {
   id        String  @id @default(cuid())
   orderId   String
   order     Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  candleId  String
-  candle    Candle @relation(fields: [candleId], references: [id])
+  candleId  String?
+  candle    Candle? @relation(fields: [candleId], references: [id], onDelete: SetNull)
   title     String
   price     Int
   quantity  Int

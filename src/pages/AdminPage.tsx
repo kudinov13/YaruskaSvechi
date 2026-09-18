@@ -64,8 +64,12 @@ export default function AdminPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Удалить товар?')) return
-    await api.adminDeleteCandle(id)
-    load()
+    try {
+      await api.adminDeleteCandle(id)
+      load()
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Ошибка удаления')
+    }
   }
 
   return (
@@ -210,7 +214,7 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
   candle: Candle | null
   categories: Category[]
   onUpload: (files: FileList) => Promise<string[]>
-  onSubmit: (data: Record<string, unknown>) => void
+  onSubmit: (data: Record<string, unknown>) => void | Promise<void>
   onCancel: () => void
 }) {
   const [title, setTitle] = useState(candle?.title || '')
@@ -224,24 +228,38 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
   const [featured, setFeatured] = useState(candle?.featured || false)
   const [images, setImages] = useState<string[]>(candle?.images || [])
   const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    onSubmit({
-      title, notes, description, price: parseInt(price) || 0,
-      oldPrice: oldPrice ? parseInt(oldPrice) : undefined,
-      stock: parseInt(stock) || 0, categoryId, season: season || undefined, images, featured,
-    })
+    setError('')
+    setSaving(true)
+    try {
+      await onSubmit({
+        title, notes, description, price: parseInt(price) || 0,
+        oldPrice: oldPrice ? parseInt(oldPrice) : undefined,
+        stock: parseInt(stock) || 0, categoryId, season: season || undefined, images, featured,
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка сохранения')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return
     setUploading(true)
+    setError('')
     try {
       const paths = await onUpload(e.target.files)
       setImages((prev) => [...prev, ...paths])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка загрузки фото')
     } finally {
       setUploading(false)
+      e.target.value = ''
     }
   }
 
@@ -283,8 +301,10 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
         )}
       </div>
 
+      {error && <p style={{ marginTop: '16px', color: '#8b2a2a', fontSize: '.9rem' }}>{error}</p>}
+
       <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-        <button type="submit" className="arrow-link" style={{ cursor: 'pointer', border: 'none' }}><span>{candle ? 'Сохранить' : 'Создать'}</span></button>
+        <button type="submit" className="arrow-link" disabled={saving || uploading} style={{ cursor: 'pointer', border: 'none', opacity: saving ? .6 : 1 }}><span>{saving ? 'Сохранение…' : candle ? 'Сохранить' : 'Создать'}</span></button>
         <button type="button" onClick={onCancel} style={{ padding: '10px 16px', cursor: 'pointer', background: 'transparent', border: '1px solid rgba(91,45,35,.2)', fontFamily: 'inherit' }}>Отмена</button>
       </div>
     </form>

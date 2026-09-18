@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import multer from 'multer'
 import path from 'node:path'
+import fs from 'node:fs'
 import { z } from 'zod'
 import { prisma } from '../db.js'
 import { authRequired, adminRequired } from '../middleware/auth.js'
@@ -8,8 +9,11 @@ import { authRequired, adminRequired } from '../middleware/auth.js'
 const router = Router()
 router.use(authRequired, adminRequired)
 
+const UPLOAD_DIR = path.resolve('uploads')
+fs.mkdirSync(UPLOAD_DIR, { recursive: true })
+
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, path.resolve('uploads')),
+  destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
   filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname)
     cb(null, `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`)
@@ -43,10 +47,19 @@ router.get('/candles', async (_req, res, next) => {
   } catch (e) { next(e) }
 })
 
+const TR = { а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'ts',ч:'ch',ш:'sh',щ:'sch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya' }
+function slugify(title) {
+  const s = title.toLowerCase().split('').map((c) => TR[c] ?? c).join('')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  return s || 'candle'
+}
+
 router.post('/candles', async (req, res, next) => {
   try {
     const data = candleSchema.parse(req.body)
-    const slug = data.slug || data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    let slug = data.slug || slugify(data.title)
+    const exists = await prisma.candle.findUnique({ where: { slug } })
+    if (exists) slug = `${slug}-${Date.now().toString(36)}`
     const item = await prisma.candle.create({ data: { ...data, slug, images: data.images || [] } })
     res.json({ item })
   } catch (e) { next(e) }

@@ -214,12 +214,16 @@ export const api = {
         return { ok: true }
       },
     ),
-  adminUpload: (formData: FormData) =>
-    fetch(`${API_URL}/admin/upload`, {
+  adminUpload: async (formData: FormData) => {
+    const res = await fetch(`${API_URL}/admin/upload`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${getToken()}` },
       body: formData,
-    }).then((r) => r.json()),
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(data.error || 'Ошибка загрузки файла')
+    return data as { files: string[] }
+  },
   adminOrders: () => withFallback(
     () => request('/admin/orders'),
     () => ({ orders: JSON.parse(localStorage.getItem('demo_orders') || '[]') }),

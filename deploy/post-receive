@@ -17,6 +17,7 @@ VITE_API_URL=/api npm run build
 rsync -a --delete $WORK/dist/ $WEB/
 
 echo "==> Backend: syncing code"
+mkdir -p $API/uploads
 rsync -a --delete --exclude node_modules --exclude uploads --exclude .env $WORK/server/ $API/
 cd $API
 npm ci --omit=dev --no-audit --no-fund
