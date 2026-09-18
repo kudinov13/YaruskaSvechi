@@ -30,7 +30,6 @@ const candleSchema = z.object({
   oldPrice: z.number().int().min(0).optional(),
   stock: z.number().int().min(0).optional(),
   categoryId: z.string(),
-  season: z.string().optional(),
   images: z.array(z.string()).optional(),
   featured: z.boolean().optional(),
 })

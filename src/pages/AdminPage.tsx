@@ -7,7 +7,7 @@ import '../App.css'
 
 type Candle = {
   id: string; title: string; slug: string; description?: string; notes?: string;
-  price: number; oldPrice?: number; stock: number; images: string[]; season?: string;
+  price: number; oldPrice?: number; stock: number; images: string[];
   featured?: boolean;
   categoryId: string; category?: { id: string; title: string; slug: string }
 }
@@ -115,7 +115,7 @@ export default function AdminPage() {
             )}
 
             {loading ? <p>Загрузка…</p> : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: '14px' }}>
                 {candles.map((item) => (
                   <div key={item.id} style={{ border: '1px solid rgba(91,45,35,.15)', padding: '16px', background: 'rgba(255,255,255,.4)', position: 'relative' }}>
                     {item.featured && <span title="Популярный товар" style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 1, background: '#5b2d23', color: '#eee8df', fontSize: '.7rem', padding: '4px 8px' }}>★ Популярный</span>}
@@ -141,7 +141,7 @@ export default function AdminPage() {
             <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.4rem', marginBottom: '8px' }}>Популярные свечи</h3>
             <p style={{ opacity: .6, marginBottom: '20px', fontSize: '.9rem' }}>Отметьте товары, которые показываются в блоке «Популярные свечи» на главной. Добавляются только существующие товары.</p>
             {loading ? <p>Загрузка…</p> : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: '14px' }}>
                 {candles.map((item) => (
                   <div key={item.id} style={{ border: item.featured ? '2px solid #5b2d23' : '1px solid rgba(91,45,35,.15)', padding: '14px', background: 'rgba(255,255,255,.4)', position: 'relative' }}>
                     {item.featured && <span style={{ position: 'absolute', top: '8px', right: '8px', background: '#5b2d23', color: '#eee8df', fontSize: '.7rem', padding: '4px 8px', letterSpacing: '.05em' }}>В популярных</span>}
@@ -224,7 +224,6 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
   const [oldPrice, setOldPrice] = useState(candle?.oldPrice?.toString() || '')
   const [stock, setStock] = useState(candle?.stock?.toString() || '0')
   const [categoryId, setCategoryId] = useState(candle?.categoryId || categories[0]?.id || '')
-  const [season, setSeason] = useState(candle?.season || '')
   const [featured, setFeatured] = useState(candle?.featured || false)
   const [images, setImages] = useState<string[]>(candle?.images || [])
   const [uploading, setUploading] = useState(false)
@@ -239,7 +238,7 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
       await onSubmit({
         title, notes, description, price: parseInt(price) || 0,
         oldPrice: oldPrice ? parseInt(oldPrice) : undefined,
-        stock: parseInt(stock) || 0, categoryId, season: season || undefined, images, featured,
+        stock: parseInt(stock) || 0, categoryId, images, featured,
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка сохранения')
@@ -286,13 +285,6 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
         <label>Категория<select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} style={{ display: 'block', width: '100%', padding: '10px', marginTop: '4px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}>
           {categories.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
         </select></label>
-        <label>Сезон<select value={season} onChange={(e) => setSeason(e.target.value)} style={{ display: 'block', width: '100%', padding: '10px', marginTop: '4px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}>
-          <option value="">—</option>
-          <option value="spring">Весна</option>
-          <option value="summer">Лето</option>
-          <option value="autumn">Осень</option>
-          <option value="winter">Зима</option>
-        </select></label>
         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '24px' }}><input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)}/> Популярный товар</label>
       </div>
 
@@ -306,16 +298,16 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
             <p style={{ fontSize: '.85rem', opacity: .6, marginBottom: '10px' }}>Первое фото — главное (показывается на карточке). Стрелки меняют порядок.</p>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               {images.map((img, i) => (
-                <div key={i} style={{ width: '84px', flexShrink: 0 }}>
-                  <div style={{ display: 'flex', gap: '4px', marginBottom: '6px' }}>
-                    <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0} style={{ flex: 1, minHeight: '44px', cursor: 'pointer', border: '1px solid rgba(91,45,35,.3)', background: 'transparent', fontFamily: 'inherit', fontSize: '1.15rem', opacity: i === 0 ? .3 : 1 }} aria-label="Влево">←</button>
-                    <button type="button" onClick={() => moveImage(i, 1)} disabled={i === images.length - 1} style={{ flex: 1, minHeight: '44px', cursor: 'pointer', border: '1px solid rgba(91,45,35,.3)', background: 'transparent', fontFamily: 'inherit', fontSize: '1.15rem', opacity: i === images.length - 1 ? .3 : 1 }} aria-label="Вправо">→</button>
+                <div key={i} style={{ width: '110px', flexShrink: 0 }}>
+                  <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
+                    <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0} style={{ flex: 1, minHeight: '48px', cursor: 'pointer', border: '1px solid rgba(91,45,35,.3)', background: 'transparent', fontFamily: 'inherit', fontSize: '1.3rem', opacity: i === 0 ? .3 : 1 }} aria-label="Влево">←</button>
+                    <button type="button" onClick={() => moveImage(i, 1)} disabled={i === images.length - 1} style={{ flex: 1, minHeight: '48px', cursor: 'pointer', border: '1px solid rgba(91,45,35,.3)', background: 'transparent', fontFamily: 'inherit', fontSize: '1.3rem', opacity: i === images.length - 1 ? .3 : 1 }} aria-label="Вправо">→</button>
                   </div>
-                  <div style={{ position: 'relative', width: '84px', height: '84px' }}>
+                  <div style={{ position: 'relative', width: '110px', height: '110px' }}>
                     <img src={imgUrl(img)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
-                    {i === 0 && <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(91,45,35,.9)', color: '#eee8df', fontSize: '.62rem', textAlign: 'center', padding: '3px 0', letterSpacing: '.05em' }}>Главное</span>}
+                    {i === 0 && <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(91,45,35,.9)', color: '#eee8df', fontSize: '.68rem', textAlign: 'center', padding: '4px 0', letterSpacing: '.05em' }}>Главное</span>}
                   </div>
-                  <button type="button" onClick={() => removeImage(i)} style={{ width: '100%', minHeight: '40px', marginTop: '8px', cursor: 'pointer', border: '1px solid #8b2a2a', background: 'transparent', color: '#8b2a2a', fontFamily: 'inherit', fontSize: '.8rem' }}>Удалить</button>
+                  <button type="button" onClick={() => removeImage(i)} style={{ width: '100%', minHeight: '44px', marginTop: '8px', cursor: 'pointer', border: '1px solid #8b2a2a', background: 'transparent', color: '#8b2a2a', fontFamily: 'inherit', fontSize: '.85rem' }}>Удалить</button>
                 </div>
               ))}
             </div>

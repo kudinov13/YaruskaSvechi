@@ -8,7 +8,7 @@ import '../App.css'
 
 type Candle = {
   id: string; title: string; slug: string; description?: string; notes?: string;
-  price: number; oldPrice?: number; stock: number; images: string[]; season?: string;
+  price: number; oldPrice?: number; stock: number; images: string[];
   category?: { id: string; title: string; slug: string }
 }
 
@@ -49,7 +49,6 @@ export default function ProductPage() {
   if (error || !item) return <><PageHeader /><main className="section-light" style={{ minHeight: '100svh', paddingTop: '120px' }}><div className="shell"><p>{error || 'Товар не найден'}</p><Link to="/catalog" className="arrow-link"><span>В каталог</span></Link></div></main></>
 
   const isFav = has(item.id)
-  const seasonLabel: Record<string, string> = { spring: 'Весна', summer: 'Лето', autumn: 'Осень', winter: 'Зима' }
 
   return (
     <><PageHeader />
@@ -92,7 +91,6 @@ export default function ProductPage() {
             {item.description && <p style={{ lineHeight: 1.7, marginBottom: '24px', opacity: .8 }}>{item.description}</p>}
 
             <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
-              {item.season && <span style={{ padding: '6px 14px', border: '1px solid rgba(91,45,35,.2)', fontSize: '.85rem' }}>{seasonLabel[item.season] || item.season}</span>}
               <span style={{ padding: '6px 14px', border: '1px solid rgba(91,45,35,.2)', fontSize: '.85rem' }}>{item.stock > 0 ? `В наличии: ${item.stock} шт` : 'Нет в наличии'}</span>
             </div>
 

@@ -9,12 +9,12 @@ const FALLBACK_CATEGORIES = [
 ]
 
 const FALLBACK_PRODUCTS = [
-  { id: 'p1', title: 'Матрёшка', slug: 'matreshka', notes: 'вишня, мёд', price: 2650, oldPrice: undefined, stock: 8, images: ['/Photos/Collection_classic.jpg'], season: 'spring', featured: true, categoryId: 'c1', category: { id: 'c1', title: 'Классика', slug: 'classic' }, description: 'Авторская свеча в форме матрёшки. Тёплый аромат вишни и мёда наполняет дом уютом.' },
-  { id: 'p2', title: 'Щелкунчик', slug: 'shchelkunchik', notes: 'корица, кедр', price: 2190, oldPrice: undefined, stock: 5, images: ['/Photos/Collection_avtor.jpg'], season: 'winter', featured: true, categoryId: 'c2', category: { id: 'c2', title: 'Авторские формы', slug: 'avtor' }, description: 'Свеча-щелкунчик с ароматом корицы и кедра. Идеальна для зимних вечеров.' },
-  { id: 'p3', title: 'Ёлочка', slug: 'yelochka', notes: 'ель, можжевельник', price: 1990, oldPrice: undefined, stock: 12, images: ['/Photos/Collections_seson.jpg'], season: 'winter', featured: true, categoryId: 'c3', category: { id: 'c3', title: 'Сезонные коллекции', slug: 'season' }, description: 'Праздничная свеча-ёлочка с хвойным ароматом.' },
-  { id: 'p4', title: 'Алёнка', slug: 'alenka', notes: 'печёное яблоко', price: 2500, oldPrice: 2900, stock: 6, images: ['/Photos/Vnalichii.jpg'], season: 'autumn', featured: true, categoryId: 'c1', category: { id: 'c1', title: 'Классика', slug: 'classic' }, description: 'Свеча с тёплым ароматом печёного яблока. Осеннее настроение в каждом доме.' },
-  { id: 'p5', title: 'Молочный свет', slug: 'molochnyy-svet', notes: 'хлопок, ваниль', price: 1850, oldPrice: undefined, stock: 10, images: [], season: 'summer', featured: false, categoryId: 'c1', category: { id: 'c1', title: 'Классика', slug: 'classic' }, description: 'Нежная свеча с ароматом хлопка и ванили. Лёгкий, воздушный аромат.' },
-  { id: 'p6', title: 'Подарочный набор «Тепло»', slug: 'podarochnyy-nabor-teplo', notes: 'ассорти, 3 свечи', price: 5200, oldPrice: undefined, stock: 4, images: ['/Photos/Podarok.jpg'], season: undefined, featured: false, categoryId: 'c4', category: { id: 'c4', title: 'В подарок', slug: 'gift' }, description: 'Набор из трёх авторских свечей в подарочной упаковке.' },
+  { id: 'p1', title: 'Матрёшка', slug: 'matreshka', notes: 'вишня, мёд', price: 2650, oldPrice: undefined, stock: 8, images: ['/Photos/Collection_classic.jpg'], featured: true, categoryId: 'c1', category: { id: 'c1', title: 'Классика', slug: 'classic' }, description: 'Авторская свеча в форме матрёшки. Тёплый аромат вишни и мёда наполняет дом уютом.' },
+  { id: 'p2', title: 'Щелкунчик', slug: 'shchelkunchik', notes: 'корица, кедр', price: 2190, oldPrice: undefined, stock: 5, images: ['/Photos/Collection_avtor.jpg'], featured: true, categoryId: 'c2', category: { id: 'c2', title: 'Авторские формы', slug: 'avtor' }, description: 'Свеча-щелкунчик с ароматом корицы и кедра. Идеальна для зимних вечеров.' },
+  { id: 'p3', title: 'Ёлочка', slug: 'yelochka', notes: 'ель, можжевельник', price: 1990, oldPrice: undefined, stock: 12, images: ['/Photos/Collections_seson.jpg'], featured: true, categoryId: 'c3', category: { id: 'c3', title: 'Сезонные коллекции', slug: 'season' }, description: 'Праздничная свеча-ёлочка с хвойным ароматом.' },
+  { id: 'p4', title: 'Алёнка', slug: 'alenka', notes: 'печёное яблоко', price: 2500, oldPrice: 2900, stock: 6, images: ['/Photos/Vnalichii.jpg'], featured: true, categoryId: 'c1', category: { id: 'c1', title: 'Классика', slug: 'classic' }, description: 'Свеча с тёплым ароматом печёного яблока. Осеннее настроение в каждом доме.' },
+  { id: 'p5', title: 'Молочный свет', slug: 'molochnyy-svet', notes: 'хлопок, ваниль', price: 1850, oldPrice: undefined, stock: 10, images: [], featured: false, categoryId: 'c1', category: { id: 'c1', title: 'Классика', slug: 'classic' }, description: 'Нежная свеча с ароматом хлопка и ванили. Лёгкий, воздушный аромат.' },
+  { id: 'p6', title: 'Подарочный набор «Тепло»', slug: 'podarochnyy-nabor-teplo', notes: 'ассорти, 3 свечи', price: 5200, oldPrice: undefined, stock: 4, images: ['/Photos/Podarok.jpg'], featured: false, categoryId: 'c4', category: { id: 'c4', title: 'В подарок', slug: 'gift' }, description: 'Набор из трёх авторских свечей в подарочной упаковке.' },
 ]
 
 function getToken() {
@@ -133,7 +133,6 @@ export const api = {
         let items = getDemoCandles()
         if (params?.featured === 'true') items = items.filter((p) => p.featured)
         if (params?.category) items = items.filter((p) => p.categoryId === params.category)
-        if (params?.season) items = items.filter((p) => p.season === params.season)
         if (params?.q) items = items.filter((p) => p.title.toLowerCase().includes(params.q!.toLowerCase()))
         return { items }
       },

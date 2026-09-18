@@ -9,7 +9,7 @@ import '../App.css'
 
 type Candle = {
   id: string; title: string; slug: string; description?: string; notes?: string;
-  price: number; oldPrice?: number; stock: number; images: string[]; season?: string;
+  price: number; oldPrice?: number; stock: number; images: string[];
   category?: { id: string; title: string; slug: string }
 }
 
@@ -22,7 +22,6 @@ export default function CatalogPage() {
   const [items, setItems] = useState<Candle[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [activeCat, setActiveCat] = useState('')
-  const [season, setSeason] = useState('')
   const [q, setQ] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -40,7 +39,6 @@ export default function CatalogPage() {
 
   const filtered = items.filter((item) => {
     if (activeCat && item.category?.slug !== activeCat) return false
-    if (season && item.season !== season) return false
     if (q) {
       const query = q.toLowerCase()
       const inTitle = item.title.toLowerCase().includes(query)
@@ -81,13 +79,6 @@ export default function CatalogPage() {
           <select value={activeCat} onChange={(e) => setActiveCat(e.target.value)} style={{ padding: '12px 16px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}>
             <option value="">Все категории</option>
             {categories.map((c) => <option key={c.id} value={c.slug}>{c.title}</option>)}
-          </select>
-          <select value={season} onChange={(e) => setSeason(e.target.value)} style={{ padding: '12px 16px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}>
-            <option value="">Все сезоны</option>
-            <option value="spring">Весна</option>
-            <option value="summer">Лето</option>
-            <option value="autumn">Осень</option>
-            <option value="winter">Зима</option>
           </select>
         </div>
 

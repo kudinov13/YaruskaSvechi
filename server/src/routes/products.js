@@ -5,10 +5,9 @@ const router = Router()
 
 router.get('/', async (req, res, next) => {
   try {
-    const { category, season, q, featured } = req.query
+    const { category, q, featured } = req.query
     const where = {}
     if (category) where.categoryId = category
-    if (season) where.season = season
     if (featured === 'true') where.featured = true
     if (q) where.title = { contains: q, mode: 'insensitive' }
     const items = await prisma.candle.findMany({

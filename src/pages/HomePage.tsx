@@ -10,7 +10,7 @@ type IconName = 'search' | 'user' | 'bag' | 'menu' | 'arrow' | 'heart' | 'hand' 
 
 type Candle = {
   id: string; title: string; slug: string; notes?: string; price: number;
-  oldPrice?: number; stock: number; images: string[]; season?: string; featured?: boolean;
+  oldPrice?: number; stock: number; images: string[]; featured?: boolean;
 }
 
 const TONES = ['ruby', 'amber', 'forest', 'velvet', 'clay', 'cream']
