@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Manrope:wght@300;400;500;600&family=Prata&display=swap');
+
+:root {
+  font-family: 'Manrope', sans-serif;
+  color: #2b1816;
+  background: #e9e1d5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --paper: #eee8df;
+  --paper-deep: #e2d9cc;
+  --ink: #2b1816;
+  --wine: #2a1112;
+  --wine-light: #3c1818;
+  --cream: #f2e9da;
+  --gold: #a88960;
+  --line: rgba(55, 31, 27, .19);
+  --shell: min(1360px, calc(100% - 72px));
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; overflow-x: hidden; max-width: 100%; overscroll-behavior-x: none; touch-action: pan-y; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--paper); overflow-x: hidden; max-width: 100%; position: relative; overscroll-behavior-x: none; touch-action: pan-y; }
+#root { max-width: 100%; overflow-x: hidden; overscroll-behavior-x: none; }
+body, button, input { font: inherit; }
+button, input { border: 0; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+img, svg { display: block; max-width: 100%; }
+h1, h2, h3, p { margin: 0; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 1px solid var(--gold); outline-offset: 4px; }
+::selection { background: #8e6652; color: #fff8ee; }
+
+@media (max-width: 900px) { :root { --shell: min(100% - 36px, 720px); } }
