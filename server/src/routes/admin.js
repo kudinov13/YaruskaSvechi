@@ -28,6 +28,7 @@ const candleSchema = z.object({
   categoryId: z.string(),
   season: z.string().optional(),
   images: z.array(z.string()).optional(),
+  featured: z.boolean().optional(),
 })
 
 router.post('/upload', upload.array('files', 8), (req, res) => {

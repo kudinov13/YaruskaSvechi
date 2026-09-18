@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { api, imgUrl } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { useFavorites } from '../context/FavoritesContext'
@@ -7,20 +8,12 @@ import '../App.css'
 
 type IconName = 'search' | 'user' | 'bag' | 'menu' | 'arrow' | 'heart' | 'hand' | 'flower' | 'spark' | 'globe' | 'telegram' | 'vk' | 'pin'
 
-const collections = [
-  { id: 'p1', title: 'Матрёшка', count: 'вишня, мёд', price: '2 650 ₽', tone: 'ruby', src: '/Photos/Collection_classic.jpg' },
-  { id: 'p2', title: 'Щелкунчик', count: 'корица, кедр', price: '2 190 ₽', tone: 'amber', src: '/Photos/Collection_avtor.jpg' },
-  { id: 'p3', title: 'Ёлочка', count: 'ель, можжевельник', price: '1 990 ₽', tone: 'forest', src: '/Photos/Collections_seson.jpg' },
-  { id: 'p4', title: 'Алёнка', count: 'печёное яблоко', price: '2 500 ₽', tone: 'velvet', src: '/Photos/Vnalichii.jpg' },
-]
+type Candle = {
+  id: string; title: string; slug: string; notes?: string; price: number;
+  oldPrice?: number; stock: number; images: string[]; season?: string; featured?: boolean;
+}
 
-const products = [
-  { title: 'Матрешка', detail: 'вишня, мёд', price: '2 650 ₽', tone: 'ruby' },
-  { title: 'Щелкунчик', detail: 'корица, кедр', price: '2 190 ₽', tone: 'amber' },
-  { title: 'Ёлочка', detail: 'ель, можжевельник', price: '1 990 ₽', tone: 'forest' },
-  { title: 'Алёнка', detail: 'печёное яблоко', price: '2 500 ₽', tone: 'clay' },
-  { title: 'Молочный свет', detail: 'хлопок, ваниль', price: '1 850 ₽', tone: 'cream' },
-]
+const TONES = ['ruby', 'amber', 'forest', 'velvet', 'clay', 'cream']
 
 function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
   const paths: Record<IconName, React.ReactNode> = {
@@ -58,9 +51,18 @@ function ArrowLink({ children, to = '#' }: { children: React.ReactNode; to?: str
 function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [favorites, setFavorites] = useState<number[]>([])
+  const [items, setItems] = useState<Candle[]>([])
+  const [featured, setFeatured] = useState<Candle[]>([])
   const { user, isAdmin } = useAuth()
   const { count: cartCount, add } = useCart()
   const { count: favCount } = useFavorites()
+
+  const fmtPrice = (n: number) => n.toLocaleString('ru-RU') + ' ₽'
+
+  useEffect(() => {
+    api.products().then(({ items }) => setItems(items)).catch(() => {})
+    api.products({ featured: 'true' }).then(({ items }) => setFeatured(items)).catch(() => {})
+  }, [])
 
   useEffect(() => {
     const nodes = document.querySelectorAll<HTMLElement>('[data-reveal]')
@@ -74,7 +76,7 @@ function HomePage() {
     }, { threshold: 0.12, rootMargin: '0px 0px -40px' })
     nodes.forEach((node) => observer.observe(node))
     return () => observer.disconnect()
-  }, [])
+  }, [items, featured])
 
   const toggleFavorite = (index: number) => {
     setFavorites((current) => current.includes(index) ? current.filter((item) => item !== index) : [...current, index])
@@ -129,12 +131,12 @@ function HomePage() {
             <Link to="/catalog" className="arrow-link"><span>Смотреть все</span><Icon name="arrow" size={16}/></Link>
           </div>
           <div className="mobile-quick-scroll">
-            {products.slice(0, 4).map((item) => (
-              <Link className="mobile-quick-card" to="/catalog" key={item.title}>
-                <PhotoPlaceholder label={item.title} tone={item.tone}/>
+            {featured.slice(0, 4).map((item, index) => (
+              <Link className="mobile-quick-card" to={`/product/${item.id}`} key={item.id}>
+                <PhotoPlaceholder label={item.title} tone={TONES[index % TONES.length]} src={imgUrl(item.images?.[0])}/>
                 <h3>{item.title}</h3>
-                <p>{item.detail}</p>
-                <strong>{item.price}</strong>
+                <p>{item.notes}</p>
+                <strong>{fmtPrice(item.price)}</strong>
               </Link>
             ))}
           </div>
@@ -148,14 +150,14 @@ function HomePage() {
             <ArrowLink to="/catalog">Все товары</ArrowLink>
           </div>
           <div className="collection-grid">
-            {collections.map((item, index) => (
-              <div className="collection-card" key={item.title} data-reveal style={{ '--delay': `${index * 70}ms` } as React.CSSProperties}>
+            {items.slice(0, 4).map((item, index) => (
+              <div className="collection-card" key={item.id} data-reveal style={{ '--delay': `${index * 70}ms` } as React.CSSProperties}>
                 <Link to={`/product/${item.id}`}>
-                  <PhotoPlaceholder label={item.title} tone={item.tone} src={item.src}/>
+                  <PhotoPlaceholder label={item.title} tone={TONES[index % TONES.length]} src={imgUrl(item.images?.[0])}/>
                 </Link>
                 <div className="card-meta">
-                  <div><h3>{item.title}</h3><p>{item.count}</p><strong>{item.price}</strong></div>
-                  <button className="card-add-btn" onClick={() => add({ id: item.id, title: item.title, price: parseInt(item.price.replace(/\s|\u00A0|₽/g, '')) || 0, image: item.src })}><span>В корзину</span></button>
+                  <div><h3>{item.title}</h3><p>{item.notes}</p><strong>{fmtPrice(item.price)}</strong></div>
+                  <button className="card-add-btn" onClick={() => add({ id: item.id, title: item.title, price: item.price, image: imgUrl(item.images?.[0]) })}><span>В корзину</span></button>
                 </div>
               </div>
             ))}
@@ -188,13 +190,15 @@ function HomePage() {
             <ArrowLink to="/catalog">Все свечи</ArrowLink>
           </aside>
           <div className="product-grid">
-            {products.slice(0, 4).map((item, index) => (
-              <article className="product-card" key={item.title} data-reveal style={{ '--delay': `${index * 60}ms` } as React.CSSProperties}>
+            {featured.slice(0, 4).map((item, index) => (
+              <article className="product-card" key={item.id} data-reveal style={{ '--delay': `${index * 60}ms` } as React.CSSProperties}>
                 <div className="product-media">
-                  <PhotoPlaceholder label={item.title} tone={item.tone}/>
+                  <Link to={`/product/${item.id}`}>
+                    <PhotoPlaceholder label={item.title} tone={TONES[index % TONES.length]} src={imgUrl(item.images?.[0])}/>
+                  </Link>
                   <button className={favorites.includes(index) ? 'favorite is-active' : 'favorite'} type="button" aria-label={`Добавить ${item.title} в избранное`} onClick={() => toggleFavorite(index)}><Icon name="heart" size={15}/></button>
                 </div>
-                <h3>{item.title}</h3><p>{item.detail}</p><strong>{item.price}</strong>
+                <h3>{item.title}</h3><p>{item.notes}</p><strong>{fmtPrice(item.price)}</strong>
               </article>
             ))}
           </div>

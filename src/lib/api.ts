@@ -9,12 +9,12 @@ const FALLBACK_CATEGORIES = [
 ]
 
 const FALLBACK_PRODUCTS = [
-  { id: 'p1', title: 'Матрёшка', slug: 'matreshka', notes: 'вишня, мёд', price: 2650, oldPrice: undefined, stock: 8, images: ['/Photos/Collection_classic.jpg'], season: 'spring', categoryId: 'c1', category: { id: 'c1', title: 'Классика', slug: 'classic' }, description: 'Авторская свеча в форме матрёшки. Тёплый аромат вишни и мёда наполняет дом уютом.' },
-  { id: 'p2', title: 'Щелкунчик', slug: 'shchelkunchik', notes: 'корица, кедр', price: 2190, oldPrice: undefined, stock: 5, images: ['/Photos/Collection_avtor.jpg'], season: 'winter', categoryId: 'c2', category: { id: 'c2', title: 'Авторские формы', slug: 'avtor' }, description: 'Свеча-щелкунчик с ароматом корицы и кедра. Идеальна для зимних вечеров.' },
-  { id: 'p3', title: 'Ёлочка', slug: 'yelochka', notes: 'ель, можжевельник', price: 1990, oldPrice: undefined, stock: 12, images: ['/Photos/Collections_seson.jpg'], season: 'winter', categoryId: 'c3', category: { id: 'c3', title: 'Сезонные коллекции', slug: 'season' }, description: 'Праздничная свеча-ёлочка с хвойным ароматом.' },
-  { id: 'p4', title: 'Алёнка', slug: 'alenka', notes: 'печёное яблоко', price: 2500, oldPrice: 2900, stock: 6, images: ['/Photos/Vnalichii.jpg'], season: 'autumn', categoryId: 'c1', category: { id: 'c1', title: 'Классика', slug: 'classic' }, description: 'Свеча с тёплым ароматом печёного яблока. Осеннее настроение в каждом доме.' },
-  { id: 'p5', title: 'Молочный свет', slug: 'molochnyy-svet', notes: 'хлопок, ваниль', price: 1850, oldPrice: undefined, stock: 10, images: [], season: 'summer', categoryId: 'c1', category: { id: 'c1', title: 'Классика', slug: 'classic' }, description: 'Нежная свеча с ароматом хлопка и ванили. Лёгкий, воздушный аромат.' },
-  { id: 'p6', title: 'Подарочный набор «Тепло»', slug: 'podarochnyy-nabor-teplo', notes: 'ассорти, 3 свечи', price: 5200, oldPrice: undefined, stock: 4, images: ['/Photos/Podarok.jpg'], season: undefined, categoryId: 'c4', category: { id: 'c4', title: 'В подарок', slug: 'gift' }, description: 'Набор из трёх авторских свечей в подарочной упаковке.' },
+  { id: 'p1', title: 'Матрёшка', slug: 'matreshka', notes: 'вишня, мёд', price: 2650, oldPrice: undefined, stock: 8, images: ['/Photos/Collection_classic.jpg'], season: 'spring', featured: true, categoryId: 'c1', category: { id: 'c1', title: 'Классика', slug: 'classic' }, description: 'Авторская свеча в форме матрёшки. Тёплый аромат вишни и мёда наполняет дом уютом.' },
+  { id: 'p2', title: 'Щелкунчик', slug: 'shchelkunchik', notes: 'корица, кедр', price: 2190, oldPrice: undefined, stock: 5, images: ['/Photos/Collection_avtor.jpg'], season: 'winter', featured: true, categoryId: 'c2', category: { id: 'c2', title: 'Авторские формы', slug: 'avtor' }, description: 'Свеча-щелкунчик с ароматом корицы и кедра. Идеальна для зимних вечеров.' },
+  { id: 'p3', title: 'Ёлочка', slug: 'yelochka', notes: 'ель, можжевельник', price: 1990, oldPrice: undefined, stock: 12, images: ['/Photos/Collections_seson.jpg'], season: 'winter', featured: true, categoryId: 'c3', category: { id: 'c3', title: 'Сезонные коллекции', slug: 'season' }, description: 'Праздничная свеча-ёлочка с хвойным ароматом.' },
+  { id: 'p4', title: 'Алёнка', slug: 'alenka', notes: 'печёное яблоко', price: 2500, oldPrice: 2900, stock: 6, images: ['/Photos/Vnalichii.jpg'], season: 'autumn', featured: true, categoryId: 'c1', category: { id: 'c1', title: 'Классика', slug: 'classic' }, description: 'Свеча с тёплым ароматом печёного яблока. Осеннее настроение в каждом доме.' },
+  { id: 'p5', title: 'Молочный свет', slug: 'molochnyy-svet', notes: 'хлопок, ваниль', price: 1850, oldPrice: undefined, stock: 10, images: [], season: 'summer', featured: false, categoryId: 'c1', category: { id: 'c1', title: 'Классика', slug: 'classic' }, description: 'Нежная свеча с ароматом хлопка и ванили. Лёгкий, воздушный аромат.' },
+  { id: 'p6', title: 'Подарочный набор «Тепло»', slug: 'podarochnyy-nabor-teplo', notes: 'ассорти, 3 свечи', price: 5200, oldPrice: undefined, stock: 4, images: ['/Photos/Podarok.jpg'], season: undefined, featured: false, categoryId: 'c4', category: { id: 'c4', title: 'В подарок', slug: 'gift' }, description: 'Набор из трёх авторских свечей в подарочной упаковке.' },
 ]
 
 function getToken() {
@@ -65,6 +65,17 @@ async function sha256(text: string): Promise<string> {
 
 // Демо-админ: ekozza@bk.ru (пароль хранится только как SHA-256 хэш)
 const DEMO_ADMIN = { id: 'admin', email: 'ekozza@bk.ru', name: 'Админ', isAdmin: true, passwordHash: '4d6f0d2ff09505b6e0cf784a1387541364b955a649e3e5a457a2ad4bde133c51' }
+
+// Демо-товары для админки (localStorage, seed из FALLBACK_PRODUCTS)
+function getDemoCandles() {
+  const stored = localStorage.getItem('demo_candles')
+  if (stored) return JSON.parse(stored) as typeof FALLBACK_PRODUCTS
+  return [...FALLBACK_PRODUCTS]
+}
+
+function saveDemoCandles(items: typeof FALLBACK_PRODUCTS) {
+  localStorage.setItem('demo_candles', JSON.stringify(items))
+}
 
 export const api = {
   // Auth
@@ -118,7 +129,14 @@ export const api = {
     const q = params ? '?' + new URLSearchParams(params).toString() : ''
     return withFallback(
       () => request(`/products${q}`),
-      () => ({ items: FALLBACK_PRODUCTS }),
+      () => {
+        let items = getDemoCandles()
+        if (params?.featured === 'true') items = items.filter((p) => p.featured)
+        if (params?.category) items = items.filter((p) => p.categoryId === params.category)
+        if (params?.season) items = items.filter((p) => p.season === params.season)
+        if (params?.q) items = items.filter((p) => p.title.toLowerCase().includes(params.q!.toLowerCase()))
+        return { items }
+      },
     )
   },
   categories: () => withFallback(
@@ -128,7 +146,7 @@ export const api = {
   product: (id: string) => withFallback(
     () => request(`/products/${id}`),
     () => {
-      const item = FALLBACK_PRODUCTS.find((p) => p.id === id || p.slug === id)
+      const item = getDemoCandles().find((p) => p.id === id || p.slug === id)
       if (!item) throw new Error('Товар не найден')
       return { item }
     },
@@ -160,22 +178,62 @@ export const api = {
   order: (id: string) => request(`/orders/${id}`),
 
   // Admin
-  adminCandles: () => request('/admin/candles'),
+  adminCandles: () => withFallback(
+    () => request('/admin/candles'),
+    () => ({ items: getDemoCandles() }),
+  ),
   adminCreateCandle: (body: Record<string, unknown>) =>
-    request('/admin/candles', { method: 'POST', body: JSON.stringify(body) }),
+    withFallback(
+      () => request('/admin/candles', { method: 'POST', body: JSON.stringify(body) }),
+      () => {
+        const items = getDemoCandles()
+        const item = { ...body, id: 'dc' + Date.now(), slug: body.slug || String(body.title).toLowerCase() }
+        items.unshift(item as (typeof items)[number])
+        saveDemoCandles(items)
+        return { item }
+      },
+    ),
   adminUpdateCandle: (id: string, body: Record<string, unknown>) =>
-    request(`/admin/candles/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+    withFallback(
+      () => request(`/admin/candles/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+      () => {
+        const items = getDemoCandles()
+        const idx = items.findIndex((c) => c.id === id)
+        if (idx >= 0) {
+          items[idx] = { ...items[idx], ...body }
+          saveDemoCandles(items)
+        }
+        return { item: items[idx] }
+      },
+    ),
   adminDeleteCandle: (id: string) =>
-    request(`/admin/candles/${id}`, { method: 'DELETE' }),
+    withFallback(
+      () => request(`/admin/candles/${id}`, { method: 'DELETE' }),
+      () => {
+        saveDemoCandles(getDemoCandles().filter((c) => c.id !== id))
+        return { ok: true }
+      },
+    ),
   adminUpload: (formData: FormData) =>
     fetch(`${API_URL}/admin/upload`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${getToken()}` },
       body: formData,
     }).then((r) => r.json()),
-  adminOrders: () => request('/admin/orders'),
+  adminOrders: () => withFallback(
+    () => request('/admin/orders'),
+    () => ({ orders: JSON.parse(localStorage.getItem('demo_orders') || '[]') }),
+  ),
   adminUpdateOrder: (id: string, body: { status?: string; cdekTrack?: string }) =>
-    request(`/admin/orders/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+    withFallback(
+      () => request(`/admin/orders/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+      () => {
+        const orders = JSON.parse(localStorage.getItem('demo_orders') || '[]')
+        const order = orders.find((o: { id: string }) => o.id === id)
+        if (order) { Object.assign(order, body); localStorage.setItem('demo_orders', JSON.stringify(orders)) }
+        return { order }
+      },
+    ),
 }
 
 export const UPLOAD_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://127.0.0.1:4000'

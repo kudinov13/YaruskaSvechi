@@ -5,10 +5,11 @@ const router = Router()
 
 router.get('/', async (req, res, next) => {
   try {
-    const { category, season, q } = req.query
+    const { category, season, q, featured } = req.query
     const where = {}
     if (category) where.categoryId = category
     if (season) where.season = season
+    if (featured === 'true') where.featured = true
     if (q) where.title = { contains: q, mode: 'insensitive' }
     const items = await prisma.candle.findMany({
       where,
@@ -32,8 +33,8 @@ router.get('/categories', async (_req, res, next) => {
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const item = await prisma.candle.findUnique({
-      where: { id: req.params.id },
+    const item = await prisma.candle.findFirst({
+      where: { OR: [{ id: req.params.id }, { slug: req.params.id }] },
       include: { category: true },
     })
     if (!item) return res.status(404).json({ error: 'Не найдено' })

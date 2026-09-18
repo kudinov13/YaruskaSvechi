@@ -8,6 +8,7 @@ import '../App.css'
 type Candle = {
   id: string; title: string; slug: string; description?: string; notes?: string;
   price: number; oldPrice?: number; stock: number; images: string[]; season?: string;
+  featured?: boolean;
   categoryId: string; category?: { id: string; title: string; slug: string }
 }
 type Category = { id: string; slug: string; title: string }
@@ -24,7 +25,7 @@ const STATUS_LABELS: Record<string, string> = {
 export default function AdminPage() {
   const { user, isAdmin, loading: authLoading } = useAuth()
   const navigate = useNavigate()
-  const [tab, setTab] = useState<'candles' | 'orders'>('candles')
+  const [tab, setTab] = useState<'candles' | 'popular' | 'orders'>('candles')
   const [candles, setCandles] = useState<Candle[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [orders, setOrders] = useState<Order[]>([])
@@ -84,6 +85,7 @@ export default function AdminPage() {
 
         <div style={{ display: 'flex', gap: '8px', marginBottom: '32px', borderBottom: '1px solid rgba(91,45,35,.15)' }}>
           <button onClick={() => setTab('candles')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'candles' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'candles' ? 600 : 400 }}>Товары</button>
+          <button onClick={() => setTab('popular')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'popular' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'popular' ? 600 : 400 }}>Популярные</button>
           <button onClick={() => setTab('orders')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'orders' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'orders' ? 600 : 400 }}>Заказы</button>
         </div>
 
@@ -111,7 +113,8 @@ export default function AdminPage() {
             {loading ? <p>Загрузка…</p> : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
                 {candles.map((item) => (
-                  <div key={item.id} style={{ border: '1px solid rgba(91,45,35,.15)', padding: '16px', background: 'rgba(255,255,255,.4)' }}>
+                  <div key={item.id} style={{ border: '1px solid rgba(91,45,35,.15)', padding: '16px', background: 'rgba(255,255,255,.4)', position: 'relative' }}>
+                    {item.featured && <span title="Популярный товар" style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 1, background: '#5b2d23', color: '#eee8df', fontSize: '.7rem', padding: '4px 8px' }}>★ Популярный</span>}
                     <div className="photo-placeholder tone-ruby" style={{ aspectRatio: '1', marginBottom: '12px', position: 'relative' }}>
                       {imgSrc(item) ? <img src={imgSrc(item)} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}/> : <div className="placeholder-frame"><small>{item.title}</small></div>}
                     </div>
@@ -122,6 +125,33 @@ export default function AdminPage() {
                       <button onClick={() => { setEditing(item); setShowForm(true) }} style={{ padding: '6px 12px', cursor: 'pointer', fontSize: '.85rem' }}>Редактировать</button>
                       <button onClick={() => handleDelete(item.id)} style={{ padding: '6px 12px', cursor: 'pointer', fontSize: '.85rem', color: '#8b2a2a' }}>Удалить</button>
                     </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {tab === 'popular' && (
+          <section>
+            <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.4rem', marginBottom: '8px' }}>Популярные свечи</h3>
+            <p style={{ opacity: .6, marginBottom: '20px', fontSize: '.9rem' }}>Отметьте товары, которые показываются в блоке «Популярные свечи» на главной. Добавляются только существующие товары.</p>
+            {loading ? <p>Загрузка…</p> : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+                {candles.map((item) => (
+                  <div key={item.id} style={{ border: item.featured ? '2px solid #5b2d23' : '1px solid rgba(91,45,35,.15)', padding: '14px', background: 'rgba(255,255,255,.4)', position: 'relative' }}>
+                    {item.featured && <span style={{ position: 'absolute', top: '8px', right: '8px', background: '#5b2d23', color: '#eee8df', fontSize: '.7rem', padding: '4px 8px', letterSpacing: '.05em' }}>В популярных</span>}
+                    <div className="photo-placeholder tone-ruby" style={{ aspectRatio: '1', marginBottom: '10px', position: 'relative' }}>
+                      {imgSrc(item) ? <img src={imgSrc(item)} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}/> : <div className="placeholder-frame"><small>{item.title}</small></div>}
+                    </div>
+                    <strong style={{ fontSize: '.95rem' }}>{item.title}</strong>
+                    <p style={{ fontSize: '.8rem', opacity: .6, marginTop: '2px' }}>{fmtPrice(item.price)}</p>
+                    <button
+                      onClick={async () => { await api.adminUpdateCandle(item.id, { featured: !item.featured }); load() }}
+                      style={{ marginTop: '10px', width: '100%', padding: '8px', cursor: 'pointer', fontSize: '.85rem', background: item.featured ? 'transparent' : '#5b2d23', color: item.featured ? '#5b2d23' : '#eee8df', border: '1px solid #5b2d23', fontFamily: 'inherit' }}
+                    >
+                      {item.featured ? 'Убрать из популярных' : 'В популярные'}
+                    </button>
                   </div>
                 ))}
               </div>
@@ -191,6 +221,7 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
   const [stock, setStock] = useState(candle?.stock?.toString() || '0')
   const [categoryId, setCategoryId] = useState(candle?.categoryId || categories[0]?.id || '')
   const [season, setSeason] = useState(candle?.season || '')
+  const [featured, setFeatured] = useState(candle?.featured || false)
   const [images, setImages] = useState<string[]>(candle?.images || [])
   const [uploading, setUploading] = useState(false)
 
@@ -199,7 +230,7 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
     onSubmit({
       title, notes, description, price: parseInt(price) || 0,
       oldPrice: oldPrice ? parseInt(oldPrice) : undefined,
-      stock: parseInt(stock) || 0, categoryId, season: season || undefined, images,
+      stock: parseInt(stock) || 0, categoryId, season: season || undefined, images, featured,
     })
   }
 
@@ -232,6 +263,7 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
           <option value="autumn">Осень</option>
           <option value="winter">Зима</option>
         </select></label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '24px' }}><input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)}/> Популярный товар</label>
       </div>
 
       <label style={{ display: 'block', marginTop: '16px' }}>Описание<textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} style={{ display: 'block', width: '100%', padding: '10px', marginTop: '4px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit', resize: 'vertical' }}/></label>

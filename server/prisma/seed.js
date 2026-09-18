@@ -22,15 +22,18 @@ async function main() {
   }
 
   const candles = [
-    { title: 'Матрёшка', slug: 'matreshka', notes: 'вишня, мёд', price: 2650, categoryId: 'classic', images: [], season: 'spring' },
-    { title: 'Щелкунчик', slug: 'shchelkunchik', notes: 'корица, кедр', price: 2190, categoryId: 'avtor', images: [], season: 'winter' },
-    { title: 'Ёлочка', slug: 'yelochka', notes: 'ель, можжевельник', price: 1990, categoryId: 'season', images: [], season: 'winter' },
-    { title: 'Алёнка', slug: 'alenka', notes: 'печёное яблоко', price: 2500, categoryId: 'classic', images: [], season: 'autumn' },
-    { title: 'Молочный свет', slug: 'molochnyy-svet', notes: 'хлопок, ваниль', price: 1850, categoryId: 'classic', images: [], season: 'summer' },
+    { title: 'Матрёшка', slug: 'matreshka', notes: 'вишня, мёд', price: 2650, stock: 8, categoryId: 'classic', images: ['/Photos/Collection_classic.jpg'], season: 'spring', featured: true, description: 'Авторская свеча в форме матрёшки. Тёплый аромат вишни и мёда наполняет дом уютом.' },
+    { title: 'Щелкунчик', slug: 'shchelkunchik', notes: 'корица, кедр', price: 2190, stock: 5, categoryId: 'avtor', images: ['/Photos/Collection_avtor.jpg'], season: 'winter', featured: true, description: 'Свеча-щелкунчик с ароматом корицы и кедра. Идеальна для зимних вечеров.' },
+    { title: 'Ёлочка', slug: 'yelochka', notes: 'ель, можжевельник', price: 1990, stock: 12, categoryId: 'season', images: ['/Photos/Collections_seson.jpg'], season: 'winter', featured: true, description: 'Праздничная свеча-ёлочка с хвойным ароматом.' },
+    { title: 'Алёнка', slug: 'alenka', notes: 'печёное яблоко', price: 2500, oldPrice: 2900, stock: 6, categoryId: 'classic', images: ['/Photos/Vnalichii.jpg'], season: 'autumn', featured: true, description: 'Свеча с тёплым ароматом печёного яблока. Осеннее настроение в каждом доме.' },
+    { title: 'Молочный свет', slug: 'molochnyy-svet', notes: 'хлопок, ваниль', price: 1850, stock: 10, categoryId: 'classic', images: [], season: 'summer', description: 'Нежная свеча с ароматом хлопка и ванили. Лёгкий, воздушный аромат.' },
   ]
   for (const c of candles) {
     const cat = await prisma.category.findUnique({ where: { slug: c.categoryId } })
-    if (cat) await prisma.candle.upsert({ where: { slug: c.slug }, update: {}, create: { ...c, categoryId: cat.id } })
+    if (cat) {
+      const { categoryId, ...data } = c
+      await prisma.candle.upsert({ where: { slug: c.slug }, update: data, create: { ...data, categoryId: cat.id } })
+    }
   }
 
   console.log('Seed complete. Admin: ekozza@bk.ru')
