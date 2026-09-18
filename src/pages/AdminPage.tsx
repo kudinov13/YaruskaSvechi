@@ -115,19 +115,19 @@ export default function AdminPage() {
             )}
 
             {loading ? <p>Загрузка…</p> : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '10px' }}>
                 {candles.map((item) => (
-                  <div key={item.id} style={{ border: '1px solid rgba(91,45,35,.15)', padding: '16px', background: 'rgba(255,255,255,.4)', position: 'relative' }}>
-                    {item.featured && <span title="Популярный товар" style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 1, background: '#5b2d23', color: '#eee8df', fontSize: '.7rem', padding: '4px 8px' }}>★ Популярный</span>}
-                    <div className="photo-placeholder tone-ruby" style={{ aspectRatio: '1', marginBottom: '12px', position: 'relative' }}>
+                  <div key={item.id} style={{ border: '1px solid rgba(91,45,35,.15)', padding: '10px', background: 'rgba(255,255,255,.4)', position: 'relative' }}>
+                    {item.featured && <span title="Популярный товар" style={{ position: 'absolute', top: '6px', right: '6px', zIndex: 1, background: '#5b2d23', color: '#eee8df', fontSize: '.62rem', padding: '3px 6px' }}>★</span>}
+                    <div className="photo-placeholder tone-ruby" style={{ aspectRatio: '1', marginBottom: '8px', position: 'relative' }}>
                       {imgSrc(item) ? <img src={imgSrc(item)} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}/> : <div className="placeholder-frame"><small>{item.title}</small></div>}
                     </div>
-                    <strong>{item.title}</strong>
-                    <p style={{ fontSize: '.85rem', opacity: .6 }}>{item.notes}</p>
-                    <p style={{ marginTop: '8px' }}>{fmtPrice(item.price)}</p>
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-                      <button onClick={() => { setEditing(item); setShowForm(true) }} style={{ padding: '6px 12px', cursor: 'pointer', fontSize: '.85rem' }}>Редактировать</button>
-                      <button onClick={() => handleDelete(item.id)} style={{ padding: '6px 12px', cursor: 'pointer', fontSize: '.85rem', color: '#8b2a2a' }}>Удалить</button>
+                    <strong style={{ fontSize: '.9rem', display: 'block', lineHeight: 1.2 }}>{item.title}</strong>
+                    <p style={{ fontSize: '.75rem', opacity: .6, marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.notes}</p>
+                    <p style={{ marginTop: '4px', fontSize: '.85rem' }}>{fmtPrice(item.price)}</p>
+                    <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+                      <button onClick={() => { setEditing(item); setShowForm(true) }} style={{ flex: 1, minHeight: '36px', padding: '6px 4px', cursor: 'pointer', fontSize: '.78rem', fontFamily: 'inherit' }}>Изменить</button>
+                      <button onClick={() => handleDelete(item.id)} style={{ flex: 1, minHeight: '36px', padding: '6px 4px', cursor: 'pointer', fontSize: '.78rem', color: '#8b2a2a', fontFamily: 'inherit' }}>Удалить</button>
                     </div>
                   </div>
                 ))}
@@ -141,20 +141,20 @@ export default function AdminPage() {
             <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.4rem', marginBottom: '8px' }}>Популярные свечи</h3>
             <p style={{ opacity: .6, marginBottom: '20px', fontSize: '.9rem' }}>Отметьте товары, которые показываются в блоке «Популярные свечи» на главной. Добавляются только существующие товары.</p>
             {loading ? <p>Загрузка…</p> : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '10px' }}>
                 {candles.map((item) => (
-                  <div key={item.id} style={{ border: item.featured ? '2px solid #5b2d23' : '1px solid rgba(91,45,35,.15)', padding: '14px', background: 'rgba(255,255,255,.4)', position: 'relative' }}>
-                    {item.featured && <span style={{ position: 'absolute', top: '8px', right: '8px', background: '#5b2d23', color: '#eee8df', fontSize: '.7rem', padding: '4px 8px', letterSpacing: '.05em' }}>В популярных</span>}
-                    <div className="photo-placeholder tone-ruby" style={{ aspectRatio: '1', marginBottom: '10px', position: 'relative' }}>
+                  <div key={item.id} style={{ border: item.featured ? '2px solid #5b2d23' : '1px solid rgba(91,45,35,.15)', padding: '10px', background: 'rgba(255,255,255,.4)', position: 'relative' }}>
+                    {item.featured && <span style={{ position: 'absolute', top: '6px', right: '6px', background: '#5b2d23', color: '#eee8df', fontSize: '.62rem', padding: '3px 6px' }}>★</span>}
+                    <div className="photo-placeholder tone-ruby" style={{ aspectRatio: '1', marginBottom: '8px', position: 'relative' }}>
                       {imgSrc(item) ? <img src={imgSrc(item)} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}/> : <div className="placeholder-frame"><small>{item.title}</small></div>}
                     </div>
-                    <strong style={{ fontSize: '.95rem' }}>{item.title}</strong>
-                    <p style={{ fontSize: '.8rem', opacity: .6, marginTop: '2px' }}>{fmtPrice(item.price)}</p>
+                    <strong style={{ fontSize: '.9rem', display: 'block', lineHeight: 1.2 }}>{item.title}</strong>
+                    <p style={{ fontSize: '.78rem', opacity: .6, marginTop: '2px' }}>{fmtPrice(item.price)}</p>
                     <button
                       onClick={async () => { await api.adminUpdateCandle(item.id, { featured: !item.featured }); load() }}
-                      style={{ marginTop: '10px', width: '100%', padding: '8px', cursor: 'pointer', fontSize: '.85rem', background: item.featured ? 'transparent' : '#5b2d23', color: item.featured ? '#5b2d23' : '#eee8df', border: '1px solid #5b2d23', fontFamily: 'inherit' }}
+                      style={{ marginTop: '8px', width: '100%', minHeight: '38px', padding: '8px 4px', cursor: 'pointer', fontSize: '.78rem', background: item.featured ? 'transparent' : '#5b2d23', color: item.featured ? '#5b2d23' : '#eee8df', border: '1px solid #5b2d23', fontFamily: 'inherit' }}
                     >
-                      {item.featured ? 'Убрать из популярных' : 'В популярные'}
+                      {item.featured ? 'Убрать' : 'В популярные'}
                     </button>
                   </div>
                 ))}
