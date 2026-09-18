@@ -4,11 +4,11 @@ import bcrypt from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function main() {
-  const adminPass = await bcrypt.hash('admin123', 10)
+  const adminPass = await bcrypt.hash('Artemmatvey2022', 10)
   await prisma.user.upsert({
-    where: { email: 'admin@yaruska.ru' },
+    where: { email: 'ekozza@bk.ru' },
     update: {},
-    create: { email: 'admin@yaruska.ru', name: 'Админ', password: adminPass, role: 'ADMIN' },
+    create: { email: 'ekozza@bk.ru', name: 'Админ', password: adminPass, role: 'ADMIN' },
   })
 
   const categories = [
@@ -33,7 +33,7 @@ async function main() {
     if (cat) await prisma.candle.upsert({ where: { slug: c.slug }, update: {}, create: { ...c, categoryId: cat.id } })
   }
 
-  console.log('Seed complete. Admin: admin@yaruska.ru / admin123')
+  console.log('Seed complete. Admin: ekozza@bk.ru')
 }
 
 main().catch(console.error).finally(() => prisma.$disconnect())

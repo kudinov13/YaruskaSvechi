@@ -1,0 +1,16 @@
+[Unit]
+Description=Yaruska API backend
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/yaruska-api
+EnvironmentFile=/opt/yaruska-api/.env
+ExecStart=/usr/bin/node src/index.js
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

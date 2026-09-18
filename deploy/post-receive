@@ -3,14 +3,28 @@ set -e
 GIT_DIR=/srv/git/yaruska.git
 WORK=/opt/yaruska-build
 WEB=/var/www/yaruska
+API=/opt/yaruska-api
 
 echo "==> Deploy started"
 git --work-tree=$WORK --git-dir=$GIT_DIR checkout -f main
+
+echo "==> Frontend: installing dependencies"
 cd $WORK
-echo "==> Installing dependencies"
 npm ci --no-audit --no-fund
-echo "==> Building"
-npm run build
-echo "==> Publishing to $WEB"
+
+echo "==> Frontend: building"
+VITE_API_URL=/api npm run build
 rsync -a --delete $WORK/dist/ $WEB/
+
+echo "==> Backend: syncing code"
+rsync -a --delete --exclude node_modules --exclude uploads --exclude .env $WORK/server/ $API/
+cd $API
+npm ci --omit=dev --no-audit --no-fund
+
+echo "==> Backend: prisma"
+npx prisma generate
+npx prisma db push --accept-data-loss || true
+
+echo "==> Backend: restart"
+systemctl restart yaruska-api || systemctl start yaruska-api
 echo "==> Deploy finished"

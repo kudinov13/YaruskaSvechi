@@ -57,18 +57,28 @@ async function withFallback<T>(requestFn: () => Promise<T>, fallbackFn: () => T 
   }
 }
 
+// SHA-256 хэш пароля для демо-режима (без хранения паролей открытым текстом)
+async function sha256(text: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+// Демо-админ: ekozza@bk.ru (пароль хранится только как SHA-256 хэш)
+const DEMO_ADMIN = { id: 'admin', email: 'ekozza@bk.ru', name: 'Админ', isAdmin: true, passwordHash: '4d6f0d2ff09505b6e0cf784a1387541364b955a649e3e5a457a2ad4bde133c51' }
+
 export const api = {
   // Auth
   register: (body: { email: string; name: string; password: string; phone?: string }) =>
     withFallback(
       () => request('/auth/register', { method: 'POST', body: JSON.stringify(body) }),
-      () => {
+      async () => {
         const users = JSON.parse(localStorage.getItem('demo_users') || '[]')
         if (users.some((u: { email: string }) => u.email === body.email)) {
           throw new Error('Пользователь с таким email уже существует')
         }
         const user = { id: 'u' + Date.now(), email: body.email, name: body.name, phone: body.phone, isAdmin: false }
-        users.push({ ...user, password: body.password })
+        const passwordHash = await sha256(body.password)
+        users.push({ ...user, passwordHash })
         localStorage.setItem('demo_users', JSON.stringify(users))
         localStorage.setItem('demo_user', JSON.stringify(user))
         const token = 'demo-' + user.id
@@ -78,9 +88,15 @@ export const api = {
   login: (body: { email: string; password: string }) =>
     withFallback(
       () => request('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
-      () => {
+      async () => {
+        const hash = await sha256(body.password)
+        if (body.email === DEMO_ADMIN.email && hash === DEMO_ADMIN.passwordHash) {
+          const { passwordHash: _ph, ...user } = DEMO_ADMIN
+          localStorage.setItem('demo_user', JSON.stringify(user))
+          return { token: 'demo-admin', user }
+        }
         const users = JSON.parse(localStorage.getItem('demo_users') || '[]')
-        const found = users.find((u: { email: string; password: string }) => u.email === body.email && u.password === body.password)
+        const found = users.find((u: { email: string; passwordHash: string }) => u.email === body.email && u.passwordHash === hash)
         if (!found) throw new Error('Неверный email или пароль')
         const user = { id: found.id, email: found.email, name: found.name, phone: found.phone, isAdmin: found.isAdmin || false }
         localStorage.setItem('demo_user', JSON.stringify(user))
