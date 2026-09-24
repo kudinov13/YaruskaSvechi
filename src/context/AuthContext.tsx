@@ -7,7 +7,7 @@ type AuthContextValue = {
   user: User | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
-  register: (email: string, name: string, password: string, phone?: string) => Promise<void>
+  register: (email: string, name: string, password: string, phone: string | undefined, dataProcessingConsent: boolean) => Promise<void>
   logout: () => void
   isAdmin: boolean
 }
@@ -35,8 +35,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(user)
   }
 
-  const register = async (email: string, name: string, password: string, phone?: string) => {
-    const { token, user } = await api.register({ email, name, password, phone })
+  const register = async (email: string, name: string, password: string, phone: string | undefined, dataProcessingConsent: boolean) => {
+    const { token, user } = await api.register({ email, name, password, phone, dataProcessingConsent })
     setToken(token)
     setUser(user)
   }

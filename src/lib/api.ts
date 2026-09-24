@@ -79,17 +79,18 @@ function saveDemoCandles(items: typeof FALLBACK_PRODUCTS) {
 
 export const api = {
   // Auth
-  register: (body: { email: string; name: string; password: string; phone?: string }) =>
+  register: (body: { email: string; name: string; password: string; phone?: string; dataProcessingConsent: boolean }) =>
     withFallback(
       () => request('/auth/register', { method: 'POST', body: JSON.stringify(body) }),
       async () => {
+        if (body.dataProcessingConsent !== true) throw new Error('Для регистрации необходимо согласие на обработку персональных данных')
         const users = JSON.parse(localStorage.getItem('demo_users') || '[]')
         if (users.some((u: { email: string }) => u.email === body.email)) {
           throw new Error('Пользователь с таким email уже существует')
         }
         const user = { id: 'u' + Date.now(), email: body.email, name: body.name, phone: body.phone, isAdmin: false }
         const passwordHash = await sha256(body.password)
-        users.push({ ...user, passwordHash })
+        users.push({ ...user, passwordHash, dataProcessingConsentAt: new Date().toISOString(), dataProcessingConsentVersion: '2026-09-24' })
         localStorage.setItem('demo_users', JSON.stringify(users))
         localStorage.setItem('demo_user', JSON.stringify(user))
         const token = 'demo-' + user.id
@@ -152,18 +153,27 @@ export const api = {
   ),
 
   // Orders
-  createOrder: (body: { items: { candleId: string; quantity: number; id?: string; title?: string; price?: number }[]; address?: string; total?: number }) =>
+  createOrder: (body: { items: { candleId: string; quantity: number; id?: string; title?: string; price?: number }[]; address?: string; total?: number; offerAccepted: boolean; dataProcessingConsent: boolean }) =>
     withFallback(
       () => request('/orders', { method: 'POST', body: JSON.stringify(body) }),
       () => {
+        if (body.offerAccepted !== true || body.dataProcessingConsent !== true) throw new Error('Для оформления заказа необходимы принятие оферты и согласие на обработку персональных данных')
+        const user = JSON.parse(localStorage.getItem('demo_user') || 'null')
+        if (!user?.id) throw new Error('Не авторизован')
         const orders = JSON.parse(localStorage.getItem('demo_orders') || '[]')
+        const consentAt = new Date().toISOString()
         const order = {
           id: 'o' + Date.now(),
           items: body.items,
           address: body.address,
           total: body.total || 0,
           status: 'NEW',
-          createdAt: new Date().toISOString(),
+          userId: user.id,
+          offerAcceptedAt: consentAt,
+          offerVersion: '2026-09-24',
+          dataProcessingConsentAt: consentAt,
+          dataProcessingConsentVersion: '2026-09-24',
+          createdAt: consentAt,
         }
         orders.push(order)
         localStorage.setItem('demo_orders', JSON.stringify(orders))

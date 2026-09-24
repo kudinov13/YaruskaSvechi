@@ -12,10 +12,15 @@ const createSchema = z.object({
     quantity: z.number().int().min(1),
   })),
   address: z.string().optional(),
+  offerAccepted: z.literal(true),
+  dataProcessingConsent: z.literal(true),
 })
 
 router.post('/', async (req, res, next) => {
   try {
+    if (req.body?.offerAccepted !== true || req.body?.dataProcessingConsent !== true) {
+      return res.status(400).json({ error: 'Необходимы принятие оферты и согласие на обработку персональных данных' })
+    }
     const data = createSchema.parse(req.body)
     const candles = await prisma.candle.findMany({
       where: { id: { in: data.items.map(i => i.candleId) } },
@@ -27,11 +32,16 @@ router.post('/', async (req, res, next) => {
       const c = candles.find(x => x.id === i.candleId)
       return sum + c.price * i.quantity
     }, 0)
+    const consentAt = new Date()
     const order = await prisma.order.create({
       data: {
         userId: req.user.id,
         total,
         address: data.address,
+        offerAcceptedAt: consentAt,
+        offerVersion: '2026-09-24',
+        dataProcessingConsentAt: consentAt,
+        dataProcessingConsentVersion: '2026-09-24',
         items: {
           create: data.items.map(i => {
             const c = candles.find(x => x.id === i.candleId)

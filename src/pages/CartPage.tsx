@@ -16,16 +16,23 @@ export default function CartPage() {
   const [ordered, setOrdered] = useState(false)
   const [ordering, setOrdering] = useState(false)
   const [orderError, setOrderError] = useState('')
+  const [offerAccepted, setOfferAccepted] = useState(false)
+  const [dataProcessingConsent, setDataProcessingConsent] = useState(false)
 
   const checkout = async () => {
     if (!user) {
       navigate('/login?redirect=/cart')
       return
     }
+    if (!offerAccepted || !dataProcessingConsent) {
+      setOrderError('Для оформления заказа примите условия оферты и дайте согласие на обработку персональных данных')
+      return
+    }
+    if (ordering || items.length === 0) return
     setOrdering(true)
     setOrderError('')
     try {
-      await api.createOrder({ items: items.map((i) => ({ id: i.id, candleId: i.id, title: i.title, price: i.price, quantity: i.quantity })), total })
+      await api.createOrder({ items: items.map((i) => ({ id: i.id, candleId: i.id, title: i.title, price: i.price, quantity: i.quantity })), total, offerAccepted, dataProcessingConsent })
       clear()
       setOrdered(true)
     } catch (e) {
@@ -41,8 +48,8 @@ export default function CartPage() {
         <PageHeader/>
         <main className="cart-page section-light" style={{ minHeight: '100svh', paddingTop: '120px', paddingBottom: '60px' }}>
         <div className="shell" style={{ maxWidth: '700px', textAlign: 'center' }}>
-          <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 300, fontSize: '2.5rem', marginBottom: '16px' }}>Заказ оформлен</h2>
-          <p style={{ opacity: .6, marginBottom: '32px' }}>Спасибо за заказ! Мы свяжемся с вами для уточнения деталей доставки.</p>
+          <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 300, fontSize: '2.5rem', marginBottom: '16px' }}>Заявка на заказ получена</h2>
+          <p style={{ opacity: .6, marginBottom: '32px' }}>Оплата на сайте пока недоступна. Мы свяжемся с вами, уточним доставку и согласуем способ оплаты.</p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/profile" className="arrow-link"><span>Мои заказы</span></Link>
             <Link to="/catalog" className="arrow-link"><span>Продолжить покупки</span></Link>
@@ -105,6 +112,16 @@ export default function CartPage() {
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px', border: '1px solid rgba(91,45,35,.2)', background: 'rgba(255,255,255,.5)', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '.9rem' }}>
+            <label className="legal-consent">
+              <input type="checkbox" checked={offerAccepted} onChange={(e) => setOfferAccepted(e.target.checked)} required/>
+              <span>Принимаю условия <Link to="/offer" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>публичной оферты</Link>.</span>
+            </label>
+            <label className="legal-consent">
+              <input type="checkbox" checked={dataProcessingConsent} onChange={(e) => setDataProcessingConsent(e.target.checked)} required/>
+              <span>Даю <Link to="/consent" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>согласие на обработку персональных данных</Link> и ознакомлен(а) с <Link to="/privacy" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>политикой конфиденциальности</Link>.</span>
+            </label>
+          </div>
           <div>
             <p style={{ opacity: .6, fontSize: '.85rem' }}>Итого</p>
             <strong style={{ fontSize: '1.8rem', fontFamily: 'Cormorant Garamond, serif' }}>{fmtPrice(total)}</strong>
@@ -112,7 +129,7 @@ export default function CartPage() {
           </div>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             <Link to="/catalog" className="arrow-link"><span>Продолжить покупки</span></Link>
-            <button onClick={checkout} disabled={ordering} className="arrow-link" style={{ background: '#5b2d23', color: '#eee8df', cursor: 'pointer', border: 'none' }}><span style={{ color: '#eee8df' }}>{ordering ? 'Оформление…' : 'Оформить заказ'}</span></button>
+            <button onClick={checkout} disabled={ordering} className="arrow-link" style={{ background: '#5b2d23', color: '#eee8df', cursor: 'pointer', border: 'none' }}><span style={{ color: '#eee8df' }}>{ordering ? 'Отправка…' : 'Отправить заявку'}</span></button>
           </div>
           {orderError && <p style={{ color: '#8b2a2a', fontSize: '.9rem', width: '100%' }}>{orderError}</p>}
         </div>

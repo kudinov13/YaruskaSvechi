@@ -38,9 +38,9 @@ export default function PageHeader() {
       <Link className="brand brand-dark" to="/" aria-label="Яруска, на главную"><strong>ЯРУСКА</strong></Link>
       <nav className={menuOpen ? 'nav is-open nav-dark' : 'nav nav-dark'} aria-label="Основная навигация">
         <Link to="/catalog" onClick={() => setMenuOpen(false)}>Коллекции</Link>
-        <Link to="/catalog" onClick={() => setMenuOpen(false)}>О бренде</Link>
-        <Link to="/catalog" onClick={() => setMenuOpen(false)}>Доставка</Link>
-        <Link to="/catalog" onClick={() => setMenuOpen(false)}>Контакты</Link>
+        <Link to="/#story" onClick={() => setMenuOpen(false)}>О бренде</Link>
+        <Link to="/delivery" onClick={() => setMenuOpen(false)}>Доставка</Link>
+        <Link to="/contacts" onClick={() => setMenuOpen(false)}>Контакты</Link>
         <div className="nav-divider mobile-only"/>
         <Link to={user ? '/profile' : '/login'} onClick={() => setMenuOpen(false)} className="nav-icon-link mobile-only"><span>{user ? 'Личный кабинет' : 'Войти'}</span></Link>
         <Link to="/favorites" onClick={() => setMenuOpen(false)} className="nav-icon-link mobile-only"><span>Избранное</span>{favCount > 0 && <span className="nav-badge">{favCount}</span>}</Link>

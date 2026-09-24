@@ -8,7 +8,8 @@ export default function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const redirect = searchParams.get('redirect') || '/profile'
+  const requestedRedirect = searchParams.get('redirect') || '/profile'
+  const redirect = requestedRedirect.startsWith('/') && !requestedRedirect.startsWith('//') ? requestedRedirect : '/profile'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -42,6 +43,7 @@ export default function LoginPage() {
             <span>{loading ? 'Вход…' : 'Войти'}</span>
           </button>
         </form>
+        <p style={{ textAlign: 'center', fontSize: '.82rem', marginTop: '16px', opacity: .7 }}>Как мы работаем с вашими данными: <Link to="/privacy" style={{ textDecoration: 'underline' }}>Политика обработки персональных данных</Link>.</p>
         <p style={{ textAlign: 'center', marginTop: '24px', opacity: .7 }}>
           Нет аккаунта? <Link to={`/register${redirect !== '/profile' ? `?redirect=${redirect}` : ''}`} style={{ textDecoration: 'underline' }}>Зарегистрироваться</Link>
         </p>

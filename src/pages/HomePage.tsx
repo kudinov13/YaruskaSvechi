@@ -91,8 +91,8 @@ function HomePage() {
           <nav className={menuOpen ? 'nav is-open' : 'nav'} aria-label="Основная навигация">
             <Link to="/catalog" onClick={() => setMenuOpen(false)}>Коллекции</Link>
             <a href="#story" onClick={() => setMenuOpen(false)}>О бренде</a>
-            <a href="#delivery" onClick={() => setMenuOpen(false)}>Доставка</a>
-            <a href="#contacts" onClick={() => setMenuOpen(false)}>Контакты</a>
+            <Link to="/delivery" onClick={() => setMenuOpen(false)}>Доставка</Link>
+            <Link to="/contacts" onClick={() => setMenuOpen(false)}>Контакты</Link>
             <div className="nav-divider mobile-only"/>
             <Link to={user ? '/profile' : '/login'} onClick={() => setMenuOpen(false)} className="nav-icon-link mobile-only"><span>{user ? 'Личный кабинет' : 'Войти'}</span></Link>
             <Link to="/favorites" onClick={() => setMenuOpen(false)} className="nav-icon-link mobile-only"><span>Избранное</span>{favCount > 0 && <span className="nav-badge">{favCount}</span>}</Link>
@@ -220,11 +220,10 @@ function HomePage() {
       <footer className="footer" id="contacts">
         <div className="shell footer-main">
           <Link className="brand brand-light" to="/"><strong>ЯРУСКА</strong><span>авторские свечи<br/>ручной работы</span></Link>
-          <div className="newsletter"><label htmlFor="email">Подпишитесь на новости</label><p>Новые коллекции и тихие письма раз в месяц</p><form onSubmit={(event) => event.preventDefault()}><input id="email" type="email" placeholder="Ваш e-mail"/><button type="submit" aria-label="Подписаться"><Icon name="arrow" size={17}/></button></form></div>
-          <nav className="footer-nav" aria-label="Навигация в подвале"><Link to="/catalog">Коллекции</Link><a href="#story">О бренде</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav>
-          <div className="socials"><a href="#contacts" aria-label="Telegram"><Icon name="telegram"/></a><a href="#contacts" aria-label="ВКонтакте"><Icon name="vk"/></a><a href="#contacts" aria-label="Адрес"><Icon name="pin"/></a></div>
+          <div className="newsletter"><p>Связаться с нами</p><p>Ющенко Валерия Александровна · ИНН 621304947080</p><a href="mailto:ekozza@bk.ru">ekozza@bk.ru</a><br/><a href="tel:+79534393158">+7 (953) 439-31-58</a></div>
+          <nav className="footer-nav" aria-label="Навигация в подвале"><Link to="/catalog">Коллекции</Link><a href="#story">О бренде</a><Link to="/delivery">Доставка</Link><Link to="/returns">Возврат</Link><Link to="/contacts">Контакты и реквизиты</Link><Link to="/offer">Публичная оферта</Link><Link to="/privacy">Политика обработки данных</Link><Link to="/consent">Согласие на обработку данных</Link></nav>
         </div>
-        <div className="shell footer-bottom"><span>© 2026 Яруска. Все права защищены</span><span>Политика конфиденциальности</span><span>Сделано с вниманием к деталям</span></div>
+        <div className="shell footer-bottom"><span>© 2026 ЯРУСКА. Ющенко Валерия Александровна</span><Link to="/privacy">Политика обработки персональных данных</Link><span>Свечи ручной работы</span></div>
       </footer>
     </main>
   )

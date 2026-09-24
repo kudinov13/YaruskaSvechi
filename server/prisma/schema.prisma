@@ -22,15 +22,17 @@ enum OrderStatus {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  password  String
-  phone     String?
-  role      Role     @default(USER)
-  orders    Order[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                           String   @id @default(cuid())
+  email                        String   @unique
+  name                         String
+  password                     String
+  phone                        String?
+  role                         Role     @default(USER)
+  dataProcessingConsentAt      DateTime?
+  dataProcessingConsentVersion String?
+  orders                       Order[]
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
 }
 
 model Category {
@@ -60,16 +62,20 @@ model Candle {
 }
 
 model Order {
-  id          String      @id @default(cuid())
-  userId      String
-  user        User        @relation(fields: [userId], references: [id])
-  items       OrderItem[]
-  total       Int
-  status      OrderStatus @default(NEW)
-  cdekTrack   String?
-  address     String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id                           String      @id @default(cuid())
+  userId                       String
+  user                         User        @relation(fields: [userId], references: [id])
+  items                        OrderItem[]
+  total                        Int
+  status                       OrderStatus @default(NEW)
+  cdekTrack                    String?
+  address                      String?
+  offerAcceptedAt              DateTime?
+  offerVersion                 String?
+  dataProcessingConsentAt      DateTime?
+  dataProcessingConsentVersion String?
+  createdAt                    DateTime    @default(now())
+  updatedAt                    DateTime    @updatedAt
 }
 
 model OrderItem {

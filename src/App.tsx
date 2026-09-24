@@ -11,6 +11,7 @@ import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
 import FavoritesPage from './pages/FavoritesPage'
 import AdminPage from './pages/AdminPage'
+import LegalPage from './pages/LegalPage'
 import './App.css'
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/admin" element={<AdminPage />} />
+              {['/offer', '/privacy', '/consent', '/delivery', '/returns', '/contacts'].map((path) => <Route key={path} path={path} element={<LegalPage />} />)}
             </Routes>
           </BrowserRouter>
         </FavoritesProvider>

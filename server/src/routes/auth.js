@@ -11,16 +11,18 @@ const registerSchema = z.object({
   name: z.string().min(2),
   password: z.string().min(6),
   phone: z.string().optional(),
+  dataProcessingConsent: z.literal(true),
 })
 
 router.post('/register', async (req, res, next) => {
   try {
+    if (req.body?.dataProcessingConsent !== true) return res.status(400).json({ error: 'Необходимо согласие на обработку персональных данных' })
     const data = registerSchema.parse(req.body)
     const exists = await prisma.user.findUnique({ where: { email: data.email } })
     if (exists) return res.status(409).json({ error: 'Email уже зарегистрирован' })
     const hash = await bcrypt.hash(data.password, 10)
     const user = await prisma.user.create({
-      data: { ...data, password: hash, role: 'USER' },
+      data: { email: data.email, name: data.name, phone: data.phone, password: hash, role: 'USER', dataProcessingConsentAt: new Date(), dataProcessingConsentVersion: '2026-09-24' },
       select: { id: true, email: true, name: true, role: true, phone: true },
     })
     const token = signToken(user)
