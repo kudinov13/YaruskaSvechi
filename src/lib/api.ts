@@ -2,19 +2,20 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:4000/api'
 
 // Fallback-данные для работы без бэкенда (демо-режим)
 const FALLBACK_CATEGORIES = [
-  { id: 'c1', slug: 'classic', title: 'Классика', order: 1 },
-  { id: 'c2', slug: 'avtor', title: 'Авторские формы', order: 2 },
-  { id: 'c3', slug: 'season', title: 'Сезонные коллекции', order: 3 },
-  { id: 'c4', slug: 'gift', title: 'В подарок', order: 4 },
+  { id: 'c5', slug: 'shkatulki', title: 'Свечи-шкатулки', order: 1 },
 ]
 
 const FALLBACK_PRODUCTS = [
-  { id: 'p1', title: 'Матрёшка', slug: 'matreshka', notes: 'вишня, мёд', price: 2650, oldPrice: undefined, stock: 8, images: ['/Photos/Collection_classic.jpg'], featured: true, categoryId: 'c1', category: { id: 'c1', title: 'Классика', slug: 'classic' }, description: 'Авторская свеча в форме матрёшки. Тёплый аромат вишни и мёда наполняет дом уютом.' },
-  { id: 'p2', title: 'Щелкунчик', slug: 'shchelkunchik', notes: 'корица, кедр', price: 2190, oldPrice: undefined, stock: 5, images: ['/Photos/Collection_avtor.jpg'], featured: true, categoryId: 'c2', category: { id: 'c2', title: 'Авторские формы', slug: 'avtor' }, description: 'Свеча-щелкунчик с ароматом корицы и кедра. Идеальна для зимних вечеров.' },
-  { id: 'p3', title: 'Ёлочка', slug: 'yelochka', notes: 'ель, можжевельник', price: 1990, oldPrice: undefined, stock: 12, images: ['/Photos/Collections_seson.jpg'], featured: true, categoryId: 'c3', category: { id: 'c3', title: 'Сезонные коллекции', slug: 'season' }, description: 'Праздничная свеча-ёлочка с хвойным ароматом.' },
-  { id: 'p4', title: 'Алёнка', slug: 'alenka', notes: 'печёное яблоко', price: 2500, oldPrice: 2900, stock: 6, images: ['/Photos/Vnalichii.jpg'], featured: true, categoryId: 'c1', category: { id: 'c1', title: 'Классика', slug: 'classic' }, description: 'Свеча с тёплым ароматом печёного яблока. Осеннее настроение в каждом доме.' },
-  { id: 'p5', title: 'Молочный свет', slug: 'molochnyy-svet', notes: 'хлопок, ваниль', price: 1850, oldPrice: undefined, stock: 10, images: [], featured: false, categoryId: 'c1', category: { id: 'c1', title: 'Классика', slug: 'classic' }, description: 'Нежная свеча с ароматом хлопка и ванили. Лёгкий, воздушный аромат.' },
-  { id: 'p6', title: 'Подарочный набор «Тепло»', slug: 'podarochnyy-nabor-teplo', notes: 'ассорти, 3 свечи', price: 5200, oldPrice: undefined, stock: 4, images: ['/Photos/Podarok.jpg'], featured: false, categoryId: 'c4', category: { id: 'c4', title: 'В подарок', slug: 'gift' }, description: 'Набор из трёх авторских свечей в подарочной упаковке.' },
+  { id: 'p1', title: 'Свеча-шкатулка Щелкунчик', slug: 'svecha-shkatulka-shchelkunchik', notes: '', price: 5000, stock: 0, images: ['/Photos/Shelk_One.jpg', '/Photos/Shelk_Two.jpg', '/Photos/Shelk_Tree.jpg'], featured: true, categoryId: 'c5', category: { id: 'c5', title: 'Свечи-шкатулки', slug: 'shkatulki' }, description: 'Свеча-шкатулка «Щелкунчик» — когда подарок хочется не просто подарить, а впечатлить.\nРучная работа из гипса, внутри — натуральный соевый воск 🤍 Красивый декор, уютное свечение и шкатулка, которая останется с вами и после того, как свеча догорит.\nИдея подарка, которую точно захочется рассмотреть поближе.' },
+  { id: 'p2', title: 'Свеча-шкатулка Ёлка', slug: 'svecha-shkatulka-yolka', notes: '', price: 6000, stock: 0, images: ['/Photos/Elka_One.jpg', '/Photos/Elka_Two.jpg', '/Photos/Elka_Tree.jpg', '/Photos/Elka_Four.jpg'], featured: true, categoryId: 'c5', category: { id: 'c5', title: 'Свечи-шкатулки', slug: 'shkatulki' }, description: 'Свеча-шкатулка «Ёлка» из коллекции «Щелкунчик» — маленькая деталь, которая создаёт настоящее новогоднее настроение.\nГипс ручной работы + натуральный соевый воск. Зажигаете — наслаждаетесь уютом, а после свечи у вас остаётся красивая шкатулка.\nИдея подарка, которая точно не затеряется среди обычных.' },
+  { id: 'p3', title: 'Свеча-шкатулка Весна', slug: 'svecha-shkatulka-vesna', notes: '', price: 4500, stock: 0, images: ['/Photos/Vesna_One.jpg', '/Photos/Vesna_Two.jpg'], featured: true, categoryId: 'c5', category: { id: 'c5', title: 'Свечи-шкатулки', slug: 'shkatulki' }, description: 'Свеча-шкатулка «Матрешка Весна» — подарок, который хочется рассматривать и хранить.\nГипс ручной работы и натуральный соевый воск. Зажигаете свечу — наслаждаетесь уютом, а после она превращается в красивую шкатулку для маленьких сокровищ.\nНеобычный подарок, который точно запомнится.' },
+  { id: 'p4', title: 'Свеча-шкатулка Барыня с самоваром', slug: 'svecha-shkatulka-barynya-s-samovarom', notes: '', price: 4500, stock: 0, images: ['/Photos/Barina.jpg'], featured: true, categoryId: 'c5', category: { id: 'c5', title: 'Свечи-шкатулки', slug: 'shkatulki' }, description: 'Свеча-шкатулка «Барыня с самоваром» — частичка русского уюта в необычном исполнении.\nГипс ручной работы + натуральный соевый воск. Зажигаете свечу — создаёте атмосферу тепла, а после она превращается в красивую шкатулку.\nОригинальный подарок для тех, кто ценит ручную работу и вещи с характером.' },
+  { id: 'p5', title: 'Свеча-шкатулка Самовар', slug: 'svecha-shkatulka-samovar', notes: '', price: 6000, stock: 0, images: ['/Photos/Samovar_One.jpg', '/Photos/Samovar_four.jpg', '/Photos/Samovar_Two.jpg'], variants: [{ id: 'white', name: 'Белый', images: ['/Photos/Samovar_One.jpg', '/Photos/Samovar_four.jpg', '/Photos/Samovar_Two.jpg'] }, { id: 'red', name: 'Красный', images: ['/Photos/Samovar_Tree.jpg', '/Photos/Samovar_Two.jpg'] }], featured: false, categoryId: 'c5', category: { id: 'c5', title: 'Свечи-шкатулки', slug: 'shkatulki' }, description: 'Самовар — символ русского уюта, теперь в формате свечи-шкатулки.\nКаждая деталь выполнена вручную из гипса, внутри — натуральный соевый воск. Зажгите самовар-свечу — и наполните пространство атмосферой тёплых чаепитий и домашнего уюта.\nПосле свечи самовар остаётся красивой шкатулкой — как маленький предмет с историей.' },
+  { id: 'p6', title: 'Свеча-шкатулка Василиса с караваем', slug: 'svecha-shkatulka-vasilisa-s-karavaem', notes: '', price: 5000, stock: 0, images: ['/Photos/Vasilisa_One.jpg', '/Photos/Vasilisa_Two.jpg'], featured: false, categoryId: 'c5', category: { id: 'c5', title: 'Свечи-шкатулки', slug: 'shkatulki' }, description: 'Свеча-шкатулка «Василиса с караваем» — настоящая русская сказка в миниатюре.\nРучная работа из гипса + натуральный соевый воск. Образ Василисы с караваем наполнен теплом, гостеприимством и особым смыслом.\nА когда свеча догорит, красивая шкатулка останется на память.' },
+  { id: 'p7', title: 'Свеча-шкатулка Аннушка с петушком', slug: 'svecha-shkatulka-annushka-s-petushkom', notes: '', price: 4500, stock: 0, images: ['/Photos/Anushka_One.jpg', '/Photos/Anushka_Two.jpg'], featured: false, categoryId: 'c5', category: { id: 'c5', title: 'Свечи-шкатулки', slug: 'shkatulki' }, description: 'Свеча-шкатулка «Аннушка с петушком» — яркая матрёшка с настоящим русским характером.\nГипс ручной работы + натуральный соевый воск. Петушок — символ бодрости, достатка и домашнего уюта, а сама матрёшка станет необычным украшением интерьера.\nЗажигаете свечу — создаёте атмосферу. После — остаётся красивая шкатулка на память.' },
+  { id: 'p8', title: 'Свеча-шкатулка Настенька с ягнёнком', slug: 'svecha-shkatulka-nastenka-s-yagnenkom', notes: '', price: 5500, stock: 0, images: ['/Photos/Nastya_One.jpg', '/Photos/Nastya_Two.jpg'], featured: false, categoryId: 'c5', category: { id: 'c5', title: 'Свечи-шкатулки', slug: 'shkatulki' }, description: 'Свеча-шкатулка «Настенька с ягнёнком» — нежность и тепло в каждой детали.\nГипс ручной работы + натуральный соевый воск. Милая матрёшка с ягнёнком станет особенным украшением интерьера и трогательным подарком.\nА когда свеча догорит, останется красивая шкатулка на память.' },
+  { id: 'p9', title: 'Свеча-шкатулка Царица', slug: 'svecha-shkatulka-tsaritsa', notes: '', price: 3500, stock: 0, images: ['/Photos/Carica_One.jpg', '/Photos/Carica_Two.jpg'], featured: false, categoryId: 'c5', category: { id: 'c5', title: 'Свечи-шкатулки', slug: 'shkatulki' }, description: '«Если бы я была царицей…» — свеча-шкатулка для той, кто заслуживает королевского подарка.\nГипс ручной работы + натуральный соевый воск. Эффектная «Царица» станет украшением интерьера, а после свечи превратится в красивую шкатулку.\nНе просто свеча — подарок с характером, который хочется рассматривать.' },
+  { id: 'p10', title: 'Свеча-шкатулка Я так чувствую', slug: 'svecha-shkatulka-ya-tak-chuvstvuyu', notes: '', price: 3500, stock: 0, images: ['/Photos/Chudvstvo_One.jpg', '/Photos/Chuvstvo_Two.jpg'], featured: false, categoryId: 'c5', category: { id: 'c5', title: 'Свечи-шкатулки', slug: 'shkatulki' }, description: '«Я так чувствую» — свеча-шкатулка для тех, кто не боится быть собой.\nГипс ручной работы + натуральный соевый воск. Зажгите свечу — и наполните пространство теплом. А после она останется красивой шкатулкой с фразой, которая говорит всё без лишних слов.\nНеобычный подарок с характером и настроением.' },
 ]
 
 function getToken() {
@@ -68,13 +69,13 @@ const DEMO_ADMIN = { id: 'admin', email: 'ekozza@bk.ru', name: 'Админ', isA
 
 // Демо-товары для админки (localStorage, seed из FALLBACK_PRODUCTS)
 function getDemoCandles() {
-  const stored = localStorage.getItem('demo_candles')
+  const stored = localStorage.getItem('demo_candles_v2')
   if (stored) return JSON.parse(stored) as typeof FALLBACK_PRODUCTS
   return [...FALLBACK_PRODUCTS]
 }
 
 function saveDemoCandles(items: typeof FALLBACK_PRODUCTS) {
-  localStorage.setItem('demo_candles', JSON.stringify(items))
+  localStorage.setItem('demo_candles_v2', JSON.stringify(items))
 }
 
 export const api = {
@@ -141,7 +142,10 @@ export const api = {
   },
   categories: () => withFallback(
     () => request('/products/categories'),
-    () => ({ categories: FALLBACK_CATEGORIES }),
+    () => {
+      const used = new Set(getDemoCandles().map((item) => item.categoryId))
+      return { categories: FALLBACK_CATEGORIES.filter((category) => used.has(category.id)) }
+    },
   ),
   product: (id: string) => withFallback(
     () => request(`/products/${id}`),
@@ -153,7 +157,7 @@ export const api = {
   ),
 
   // Orders
-  createOrder: (body: { items: { candleId: string; quantity: number; id?: string; title?: string; price?: number }[]; address?: string; total?: number; offerAccepted: boolean; dataProcessingConsent: boolean }) =>
+  createOrder: (body: { items: { candleId: string; quantity: number; id?: string; title?: string; price?: number; variantId?: string }[]; address?: string; total?: number; offerAccepted: boolean; dataProcessingConsent: boolean }) =>
     withFallback(
       () => request('/orders', { method: 'POST', body: JSON.stringify(body) }),
       () => {

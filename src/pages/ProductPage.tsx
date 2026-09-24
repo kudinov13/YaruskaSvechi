@@ -9,6 +9,7 @@ import '../App.css'
 type Candle = {
   id: string; title: string; slug: string; description?: string; notes?: string;
   price: number; oldPrice?: number; stock: number; images: string[];
+  variants?: { id: string; name: string; images: string[] }[];
   category?: { id: string; title: string; slug: string }
 }
 
@@ -21,6 +22,7 @@ export default function ProductPage() {
   const [error, setError] = useState('')
   const [qty, setQty] = useState(1)
   const [activeImg, setActiveImg] = useState(0)
+  const [selectedVariantId, setSelectedVariantId] = useState('')
   const [added, setAdded] = useState(false)
 
   useEffect(() => {
@@ -29,6 +31,8 @@ export default function ProductPage() {
     api.product(id)
       .then(({ item }) => {
         setItem(item)
+        setSelectedVariantId(item.variants?.[0]?.id || '')
+        setActiveImg(0)
         window.scrollTo({ top: 0 })
       })
       .catch((e) => setError(e.message))
@@ -37,10 +41,20 @@ export default function ProductPage() {
 
   const fmtPrice = (n: number) => n.toLocaleString('ru-RU') + ' ₽'
   const imgSrc = (img?: string) => imgUrl(img)
+  const selectedVariant = item?.variants?.find((variant) => variant.id === selectedVariantId)
+  const galleryImages = selectedVariant?.images || item?.images || []
 
   const handleAdd = () => {
     if (!item) return
-    add({ id: item.id, title: item.title, price: item.price, image: item.images?.[0] }, qty)
+    const cartId = selectedVariant ? `${item.id}::${selectedVariant.id}` : item.id
+    add({
+      id: cartId,
+      productId: item.id,
+      variantId: selectedVariant?.id,
+      title: selectedVariant ? `${item.title} — ${selectedVariant.name}` : item.title,
+      price: item.price,
+      image: galleryImages[0],
+    }, qty)
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)
   }
@@ -61,15 +75,15 @@ export default function ProductPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '48px', alignItems: 'start' }} className="product-detail-grid">
           <div>
             <div className="photo-placeholder tone-ruby" style={{ aspectRatio: '4 / 5', position: 'relative', overflow: 'hidden' }}>
-              {item.images?.[activeImg] ? (
-                <img src={imgSrc(item.images[activeImg])} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}/>
+              {galleryImages[activeImg] ? (
+                <img src={imgSrc(galleryImages[activeImg])} alt={selectedVariant ? `${item.title} — ${selectedVariant.name}` : item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}/>
               ) : (
                 <div className="placeholder-frame"><span>Фото</span><small>{item.title}</small></div>
               )}
             </div>
-            {item.images.length > 1 && (
-              <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-                {item.images.map((img, i) => (
+            {galleryImages.length > 1 && (
+              <div style={{ display: 'flex', gap: '8px', marginTop: '12px', overflowX: 'auto' }}>
+                {galleryImages.map((img, i) => (
                   <button key={i} onClick={() => setActiveImg(i)} style={{ width: '64px', height: '64px', border: i === activeImg ? '2px solid #5b2d23' : '1px solid rgba(91,45,35,.2)', cursor: 'pointer', padding: 0, background: 'transparent' }}>
                     <img src={imgSrc(img)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
                   </button>
@@ -83,6 +97,20 @@ export default function ProductPage() {
             <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 300, fontSize: 'clamp(2rem, 4vw, 3rem)', marginBottom: '12px' }}>{item.title}</h1>
             {item.notes && <p style={{ opacity: .7, marginBottom: '20px', fontSize: '1.1rem' }}>{item.notes}</p>}
 
+            {item.variants && item.variants.length > 0 && (
+              <fieldset className="product-variant-picker">
+                <legend>Цвет самовара</legend>
+                <div>
+                  {item.variants.map((variant) => (
+                    <button key={variant.id} type="button" className={selectedVariantId === variant.id ? 'product-variant is-selected' : 'product-variant'} aria-pressed={selectedVariantId === variant.id} onClick={() => { setSelectedVariantId(variant.id); setActiveImg(0) }}>
+                      <span className={`variant-swatch variant-swatch-${variant.id}`} aria-hidden="true"/>
+                      {variant.name}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+            )}
+
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '24px' }}>
               <strong style={{ fontSize: '1.8rem' }}>{fmtPrice(item.price)}</strong>
               {item.oldPrice && <span style={{ textDecoration: 'line-through', opacity: .4 }}>{fmtPrice(item.oldPrice)}</span>}
@@ -91,7 +119,7 @@ export default function ProductPage() {
             {item.description && <p style={{ lineHeight: 1.7, marginBottom: '24px', opacity: .8 }}>{item.description}</p>}
 
             <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
-              <span style={{ padding: '6px 14px', border: '1px solid rgba(91,45,35,.2)', fontSize: '.85rem' }}>{item.stock > 0 ? `В наличии: ${item.stock} шт` : 'Нет в наличии'}</span>
+              <span style={{ padding: '6px 14px', border: '1px solid rgba(91,45,35,.2)', fontSize: '.85rem' }}>{item.stock > 0 ? `В наличии: ${item.stock} шт` : 'Наличие уточняется'}</span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>

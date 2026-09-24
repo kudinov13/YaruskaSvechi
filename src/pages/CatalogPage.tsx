@@ -10,6 +10,7 @@ import '../App.css'
 type Candle = {
   id: string; title: string; slug: string; description?: string; notes?: string;
   price: number; oldPrice?: number; stock: number; images: string[];
+  variants?: { id: string; name: string; images: string[] }[];
   category?: { id: string; title: string; slug: string }
 }
 
@@ -107,9 +108,13 @@ export default function CatalogPage() {
                 <h3>{item.title}</h3>
                 <p>{item.notes || ''}</p>
                 <strong>{fmtPrice(item.price)}</strong>
-                <button onClick={() => handleAdd(item)} className="card-add-btn">
-                  <span>{addedId === item.id ? '✓' : 'В корзину'}</span>
-                </button>
+                {item.variants?.length ? (
+                  <Link to={`/product/${item.id}`} className="card-add-btn variant-choice-link"><span>Выбрать цвет</span></Link>
+                ) : (
+                  <button onClick={() => handleAdd(item)} className="card-add-btn">
+                    <span>{addedId === item.id ? '✓' : 'В корзину'}</span>
+                  </button>
+                )}
               </article>
             )
           })}

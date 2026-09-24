@@ -32,7 +32,7 @@ export default function CartPage() {
     setOrdering(true)
     setOrderError('')
     try {
-      await api.createOrder({ items: items.map((i) => ({ id: i.id, candleId: i.id, title: i.title, price: i.price, quantity: i.quantity })), total, offerAccepted, dataProcessingConsent })
+      await api.createOrder({ items: items.map((i) => ({ id: i.id, candleId: i.productId || i.id, variantId: i.variantId, title: i.title, price: i.price, quantity: i.quantity })), total, offerAccepted, dataProcessingConsent })
       clear()
       setOrdered(true)
     } catch (e) {
@@ -91,11 +91,11 @@ export default function CartPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px' }}>
           {items.map((item) => (
             <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '80px 1fr auto auto', gap: '16px', alignItems: 'center', padding: '16px', border: '1px solid rgba(91,45,35,.15)', background: 'rgba(255,255,255,.4)' }} className="cart-row">
-              <Link to={`/product/${item.id}`} style={{ width: '80px', height: '80px', display: 'block', position: 'relative', overflow: 'hidden' }}>
+              <Link to={`/product/${item.productId || item.id}`} style={{ width: '80px', height: '80px', display: 'block', position: 'relative', overflow: 'hidden' }}>
                 {item.image ? <img src={imgSrc(item.image)} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}/> : <div className="placeholder-frame" style={{ width: '100%', height: '100%' }}><small>Фото</small></div>}
               </Link>
               <div>
-                <Link to={`/product/${item.id}`} style={{ fontWeight: 600, textDecoration: 'none', color: 'inherit' }}>{item.title}</Link>
+                <Link to={`/product/${item.productId || item.id}`} style={{ fontWeight: 600, textDecoration: 'none', color: 'inherit' }}>{item.title}</Link>
                 <p style={{ fontSize: '.85rem', opacity: .6, marginTop: '4px' }}>{fmtPrice(item.price)} / шт</p>
               </div>
               <div className="cart-qty">

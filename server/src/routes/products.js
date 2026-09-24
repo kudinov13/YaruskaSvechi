@@ -23,7 +23,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/categories', async (_req, res, next) => {
   try {
-    const categories = await prisma.category.findMany({ orderBy: { order: 'asc' } })
+    const categories = await prisma.category.findMany({ where: { items: { some: {} } }, orderBy: { order: 'asc' } })
     res.json({ categories })
   } catch (e) {
     next(e)

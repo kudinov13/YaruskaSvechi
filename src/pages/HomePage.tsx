@@ -11,6 +11,7 @@ type IconName = 'search' | 'user' | 'bag' | 'menu' | 'arrow' | 'heart' | 'hand' 
 type Candle = {
   id: string; title: string; slug: string; notes?: string; price: number;
   oldPrice?: number; stock: number; images: string[]; featured?: boolean;
+  variants?: { id: string; name: string; images: string[] }[];
 }
 
 const TONES = ['ruby', 'amber', 'forest', 'velvet', 'clay', 'cream']
@@ -157,7 +158,11 @@ function HomePage() {
                 </Link>
                 <div className="card-meta">
                   <div><h3>{item.title}</h3><p>{item.notes}</p><strong>{fmtPrice(item.price)}</strong></div>
-                  <button className="card-add-btn" onClick={() => add({ id: item.id, title: item.title, price: item.price, image: imgUrl(item.images?.[0]) })}><span>В корзину</span></button>
+                  {item.variants?.length ? (
+                    <Link to={`/product/${item.id}`} className="card-add-btn variant-choice-link"><span>Выбрать цвет</span></Link>
+                  ) : (
+                    <button className="card-add-btn" onClick={() => add({ id: item.id, title: item.title, price: item.price, image: imgUrl(item.images?.[0]) })}><span>В корзину</span></button>
+                  )}
                 </div>
               </div>
             ))}

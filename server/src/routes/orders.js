@@ -10,6 +10,7 @@ const createSchema = z.object({
   items: z.array(z.object({
     candleId: z.string(),
     quantity: z.number().int().min(1),
+    variantId: z.string().optional(),
   })),
   address: z.string().optional(),
   offerAccepted: z.literal(true),
@@ -22,16 +23,23 @@ router.post('/', async (req, res, next) => {
       return res.status(400).json({ error: 'Необходимы принятие оферты и согласие на обработку персональных данных' })
     }
     const data = createSchema.parse(req.body)
-    const candles = await prisma.candle.findMany({
-      where: { id: { in: data.items.map(i => i.candleId) } },
-    })
-    if (candles.length !== data.items.length) {
+    const candleIds = [...new Set(data.items.map(i => i.candleId))]
+    const candles = await prisma.candle.findMany({ where: { id: { in: candleIds } } })
+    if (candles.length !== candleIds.length) {
       return res.status(400).json({ error: 'Некоторые товары не найдены' })
     }
-    const total = data.items.reduce((sum, i) => {
-      const c = candles.find(x => x.id === i.candleId)
-      return sum + c.price * i.quantity
-    }, 0)
+    const candleById = new Map(candles.map(candle => [candle.id, candle]))
+    const orderItems = []
+    for (const item of data.items) {
+      const candle = candleById.get(item.candleId)
+      const variants = Array.isArray(candle.variants) ? candle.variants : []
+      const variant = variants.find(option => option.id === item.variantId)
+      if ((variants.length && !variant) || (!variants.length && item.variantId)) {
+        return res.status(400).json({ error: 'Выбран недоступный вариант товара' })
+      }
+      orderItems.push({ candleId: item.candleId, title: variant ? `${candle.title} — ${variant.name}` : candle.title, price: candle.price, quantity: item.quantity })
+    }
+    const total = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
     const consentAt = new Date()
     const order = await prisma.order.create({
       data: {
@@ -42,12 +50,7 @@ router.post('/', async (req, res, next) => {
         offerVersion: '2026-09-24',
         dataProcessingConsentAt: consentAt,
         dataProcessingConsentVersion: '2026-09-24',
-        items: {
-          create: data.items.map(i => {
-            const c = candles.find(x => x.id === i.candleId)
-            return { candleId: i.candleId, title: c.title, price: c.price, quantity: i.quantity }
-          }),
-        },
+        items: { create: orderItems },
       },
       include: { items: true },
     })

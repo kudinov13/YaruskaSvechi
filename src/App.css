@@ -191,6 +191,15 @@ a:hover .placeholder-frame, .product-card:hover .placeholder-frame { background:
 .card-fav:hover { transform: scale(1.1); }
 .card-add-btn { margin-top: 10px; cursor: pointer; border: 1px solid rgba(91,45,35,.2); background: transparent; padding: 8px 14px; font-family: inherit; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; width: 100%; transition: background .3s, color .3s; }
 .card-add-btn:hover { background: #5b2d23; color: #eee8df; border-color: #5b2d23; }
+.variant-choice-link { display: block; text-align: center; text-decoration: none; }
+.product-variant-picker { margin: 0 0 24px; padding: 0; border: 0; }
+.product-variant-picker legend { margin-bottom: 10px; font-size: .9rem; font-weight: 600; }
+.product-variant-picker > div { display: flex; flex-wrap: wrap; gap: 10px; }
+.product-variant { min-height: 48px; display: inline-flex; align-items: center; gap: 9px; padding: 8px 14px; border: 1px solid rgba(91,45,35,.25); color: #2a201d; background: transparent; font: inherit; cursor: pointer; }
+.product-variant.is-selected { border: 2px solid #5b2d23; background: rgba(91,45,35,.06); }
+.variant-swatch { width: 22px; height: 22px; border: 1px solid rgba(42,32,29,.3); border-radius: 50%; }
+.variant-swatch-white { background: #f7f4eb; }
+.variant-swatch-red { background: #9e1b2b; }
 
 /* ===== Cart quantity control ===== */
 .cart-qty { display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; width: 122px; min-height: 42px; border: 1px solid rgba(91,45,35,.2); box-sizing: border-box; overflow: hidden; }
