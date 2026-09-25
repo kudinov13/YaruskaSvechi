@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 
 export type CartItem = {
   id: string
@@ -57,7 +57,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, quantity: qty } : i)))
   }
 
-  const clear = () => setItems([])
+  const clear = useCallback(() => setItems([]), [])
 
   const count = items.reduce((sum, i) => sum + i.quantity, 0)
   const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0)

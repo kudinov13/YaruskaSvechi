@@ -9,17 +9,16 @@ type Candle = {
   id: string; title: string; slug: string; description?: string; notes?: string;
   price: number; oldPrice?: number; stock: number; images: string[];
   featured?: boolean;
+  shippingPackagePreset?: string | null
+  shippingWeightGrams?: number | null
   categoryId: string; category?: { id: string; title: string; slug: string }
 }
 type Category = { id: string; slug: string; title: string }
 type Order = {
-  id: string; total: number; status: string; cdekTrack?: string; createdAt: string;
+  id: string; total?: number; goodsTotal?: number; deliveryPrice?: number; paymentStatus?: string; status?: string;
+  cdekTrack?: string; cdekStatusCode?: string | number; cdekStatus?: string; createdAt: string;
   user?: { name: string; email: string; phone?: string }
   items: { id: string; title: string; price: number; quantity: number }[]
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  NEW: 'Новый', PAID: 'Оплачен', ASSEMBLED: 'Собирается', SHIPPED: 'Отправлен', DELIVERED: 'Доставлен', CANCELLED: 'Отменён',
 }
 
 export default function AdminPage() {
@@ -176,27 +175,18 @@ export default function AdminPage() {
                         <p style={{ fontSize: '.85rem', opacity: .6 }}>{fmtDate(order.createdAt)}</p>
                         {order.user && <p style={{ fontSize: '.85rem', marginTop: '4px' }}>{order.user.name} · {order.user.email}{order.user.phone ? ` · ${order.user.phone}` : ''}</p>}
                       </div>
-                      <strong>{fmtPrice(order.total)}</strong>
+                      <strong>{fmtPrice(order.total ?? ((order.goodsTotal || 0) + (order.deliveryPrice || 0)))}</strong>
                     </div>
                     <div style={{ fontSize: '.85rem', marginBottom: '12px' }}>
                       {order.items.map((i) => <div key={i.id}>{i.title} × {i.quantity}</div>)}
                     </div>
-                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-                      <select
-                        value={order.status}
-                        onChange={async (e) => { await api.adminUpdateOrder(order.id, { status: e.target.value }); load() }}
-                        style={{ padding: '8px 12px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}
-                      >
-                        {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                      </select>
-                      <input
-                        type="text"
-                        placeholder="Трек СДЭК"
-                        defaultValue={order.cdekTrack || ''}
-                        onBlur={async (e) => { if (e.target.value !== order.cdekTrack) await api.adminUpdateOrder(order.id, { cdekTrack: e.target.value }) }}
-                        style={{ padding: '8px 12px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit', flex: '1 1 200px' }}
-                      />
-                    </div>
+                    <dl className="order-status-details">
+                      <div><dt>Оплата</dt><dd>{order.paymentStatus || 'Статус пока не получен'}</dd></div>
+                      {typeof order.goodsTotal === 'number' && <div><dt>Товары</dt><dd>{fmtPrice(order.goodsTotal)}</dd></div>}
+                      {typeof order.deliveryPrice === 'number' && <div><dt>Доставка</dt><dd>{fmtPrice(order.deliveryPrice)}</dd></div>}
+                      <div><dt>Статус СДЭК</dt><dd>{order.cdekStatus || 'Информация о доставке пока не обновлена'}{order.cdekStatusCode !== undefined && order.cdekStatusCode !== null ? ` · код ${order.cdekStatusCode}` : ''}</dd></div>
+                    </dl>
+                    {order.cdekTrack && <p style={{ marginTop: '12px', fontSize: '.85rem' }}>Трек: <a href={`https://www.cdek.ru/ru/tracking?order_id=${encodeURIComponent(order.cdekTrack)}`} target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>{order.cdekTrack}</a></p>}
                   </div>
                 ))}
                 {orders.length === 0 && <p style={{ opacity: .6 }}>Заказов пока нет</p>}
@@ -225,6 +215,8 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
   const [stock, setStock] = useState(candle?.stock?.toString() || '0')
   const [categoryId, setCategoryId] = useState(candle?.categoryId || categories[0]?.id || '')
   const [featured, setFeatured] = useState(candle?.featured || false)
+  const [packagePreset, setPackagePreset] = useState(candle?.shippingPackagePreset || '')
+  const [weightGrams, setWeightGrams] = useState(candle?.shippingWeightGrams?.toString() || '')
   const [images, setImages] = useState<string[]>(candle?.images || [])
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
@@ -233,12 +225,18 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    if (!packagePreset || !weightGrams || !Number.isInteger(Number(weightGrams)) || Number(weightGrams) <= 0) {
+      setError('Укажите профиль упаковки и фактический вес товара после упаковки для расчёта СДЭК')
+      return
+    }
     setSaving(true)
     try {
       await onSubmit({
         title, notes, description, price: parseInt(price) || 0,
         oldPrice: oldPrice ? parseInt(oldPrice) : undefined,
         stock: parseInt(stock) || 0, categoryId, images, featured,
+        shippingPackagePreset: packagePreset || null,
+        shippingWeightGrams: weightGrams ? parseInt(weightGrams, 10) : null,
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка сохранения')
@@ -286,6 +284,15 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
           {categories.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
         </select></label>
         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '24px' }}><input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)}/> Популярный товар</label>
+        <label>Профиль упаковки СДЭК<select value={packagePreset} onChange={(e) => setPackagePreset(e.target.value)} required style={{ display: 'block', width: '100%', padding: '10px', marginTop: '4px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}>
+          <option value="">Не выбран</option>
+          <option value="p25x25x10">25 × 25 × 10 см — до 2 кг</option>
+          <option value="p50x25x15">50 × 25 × 15 см — до 3 кг</option>
+          <option value="p40x30x20">40 × 30 × 20 см — до 3 кг</option>
+          <option value="p50x30x30">50 × 30 × 30 см — до 5 кг</option>
+        </select></label>
+        <label>Фактический вес упакованного товара (г)<input type="number" min="1" max={packagePreset === 'p25x25x10' ? 2000 : packagePreset === 'p50x25x15' || packagePreset === 'p40x30x20' ? 3000 : packagePreset === 'p50x30x30' ? 5000 : undefined} step="1" value={weightGrams} onChange={(e) => setWeightGrams(e.target.value)} required placeholder="Точный вес после упаковки" style={{ display: 'block', width: '100%', padding: '10px', marginTop: '4px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/></label>
+        <p style={{ gridColumn: '1 / -1', fontSize: '.85rem', opacity: .7, margin: 0 }}>Нужны для расчёта СДЭК. Профиль задаёт максимальные габариты и вес; укажите только фактически измеренный вес после упаковки.</p>
       </div>
 
       <label style={{ display: 'block', marginTop: '16px' }}>Описание<textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} style={{ display: 'block', width: '100%', padding: '10px', marginTop: '4px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit', resize: 'vertical' }}/></label>

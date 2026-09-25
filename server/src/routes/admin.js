@@ -29,6 +29,8 @@ const candleSchema = z.object({
   price: z.number().int().min(0),
   oldPrice: z.number().int().min(0).optional(),
   stock: z.number().int().min(0).optional(),
+  shippingWeightGrams: z.number().int().positive().nullable().optional(),
+  shippingPackagePreset: z.enum(['p25x25x10', 'p50x25x15', 'p40x30x20', 'p50x30x30']).nullable().optional(),
   categoryId: z.string(),
   images: z.array(z.string()).optional(),
   featured: z.boolean().optional(),
@@ -95,12 +97,13 @@ router.get('/orders', async (_req, res, next) => {
 })
 
 router.put('/orders/:id', async (req, res, next) => {
+  if (Object.hasOwn(req.body || {}, 'status') || Object.keys(req.body || {}).some(key => key !== 'cdekTrack')) {
+    return res.status(400).json({ error: 'Статус заказа обновляется только платёжными и CDEK-вебхуками' })
+  }
+  const parsed = z.object({ cdekTrack: z.string().max(255).nullable() }).strict().safeParse(req.body)
+  if (!parsed.success) return res.status(400).json({ error: 'Некорректные данные заказа' })
   try {
-    const { status, cdekTrack } = req.body
-    const order = await prisma.order.update({
-      where: { id: req.params.id },
-      data: { status, cdekTrack },
-    })
+    const order = await prisma.order.update({ where: { id: req.params.id }, data: parsed.data })
     res.json({ order })
   } catch (e) { next(e) }
 })

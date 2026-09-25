@@ -632,3 +632,47 @@ a:hover .placeholder-frame, .product-card:hover .placeholder-frame { background:
   .legal-sections p { font-size: 14px; line-height: 1.68; }
   .legal-footer .shell { display: grid; }
 }
+
+.checkout-form { display: grid; gap: 18px; padding: clamp(16px, 3vw, 28px); border: 1px solid rgba(91,45,35,.2); background: rgba(255,255,255,.4); }
+.checkout-section { min-width: 0; }
+.checkout-section h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.45rem; font-weight: 400; margin: 0 0 14px; }
+.checkout-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 14px; }
+.checkout-fields label, .checkout-city-label, .checkout-point-label { display: grid; gap: 6px; font-size: .9rem; }
+.checkout-fields input, .checkout-city-label input, .checkout-point-label select { box-sizing: border-box; width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid rgba(91,45,35,.24); border-radius: 0; background: rgba(255,255,255,.45); color: var(--ink); font: inherit; }
+.checkout-city-label { max-width: 560px; }
+.checkout-point-label { margin-top: 14px; }
+.checkout-city-options { list-style: none; margin: 6px 0 0; padding: 0; max-width: 560px; max-height: 260px; overflow-y: auto; border: 1px solid rgba(91,45,35,.2); background: var(--paper); }
+.checkout-city-options button { width: 100%; min-height: 44px; border: 0; border-bottom: 1px solid rgba(91,45,35,.1); padding: 10px 12px; text-align: left; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.checkout-city-options button:hover, .checkout-city-options button:focus-visible { background: rgba(91,45,35,.08); }
+.checkout-help { color: #675750; font-size: .85rem; line-height: 1.55; margin: 6px 0 0; }
+.checkout-totals { display: grid; gap: 10px; padding: 18px 0; border-top: 1px solid rgba(91,45,35,.17); border-bottom: 1px solid rgba(91,45,35,.17); }
+.checkout-totals > div { display: flex; justify-content: space-between; gap: 12px; }
+.checkout-totals > .checkout-grand-total { padding-top: 10px; border-top: 1px solid rgba(91,45,35,.14); font-size: 1.2rem; }
+.checkout-grand-total strong { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; }
+.checkout-consents { display: grid; gap: 12px; }
+.checkout-consents .legal-consent { align-items: flex-start; }
+.checkout-error { color: #8b2a2a; font-size: .9rem; line-height: 1.5; margin: 0; }
+.checkout-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.checkout-submit { background: #5b2d23; color: #eee8df; cursor: pointer; border: 1px solid #5b2d23; }
+.checkout-submit span { color: #eee8df; }
+.checkout-submit:disabled { cursor: not-allowed; opacity: .5; }
+.orders-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+.orders-refresh { min-height: 42px; padding: 8px 14px; border: 1px solid rgba(91,45,35,.25); background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.orders-refresh:disabled { opacity: .55; cursor: wait; }
+.order-status-details { display: grid; gap: 8px; margin: 0; padding-top: 14px; border-top: 1px solid rgba(91,45,35,.1); }
+.order-status-details > div { display: grid; grid-template-columns: minmax(100px, 140px) 1fr; gap: 12px; font-size: .9rem; }
+.order-status-details dt { opacity: .62; }
+.order-status-details dd { margin: 0; overflow-wrap: anywhere; }
+.payment-return-card { max-width: 700px; text-align: center; }
+.payment-return-card h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 5vw, 3rem); font-weight: 300; margin: 12px 0; }
+.payment-return-card > p:not(.eyebrow) { line-height: 1.6; }
+.payment-return-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+
+@media (max-width: 600px) {
+  .checkout-form { padding: 16px; }
+  .checkout-actions { align-items: stretch; }
+  .checkout-actions .arrow-link { box-sizing: border-box; width: 100%; justify-content: space-between; }
+  .order-status-details > div { grid-template-columns: 1fr; gap: 2px; }
+  .payment-return-links { align-items: stretch; flex-direction: column; }
+  .payment-return-links .arrow-link { width: 100%; box-sizing: border-box; }
+}

@@ -7,6 +7,8 @@ import authRoutes from './routes/auth.js'
 import productRoutes from './routes/products.js'
 import orderRoutes from './routes/orders.js'
 import adminRoutes from './routes/admin.js'
+import deliveryRoutes from './routes/delivery.js'
+import webhookRoutes, { syncPendingYooKassaPayments } from './routes/webhooks.js'
 
 dotenv.config()
 
@@ -24,7 +26,9 @@ app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')))
 app.get('/api/health', (_req, res) => res.json({ ok: true }))
 app.use('/api/auth', authRoutes)
 app.use('/api/products', productRoutes)
+app.use('/api/delivery', deliveryRoutes)
 app.use('/api/orders', orderRoutes)
+app.use('/api/webhooks', webhookRoutes)
 app.use('/api/admin', adminRoutes)
 
 app.use((err, _req, res, _next) => {
@@ -33,3 +37,5 @@ app.use((err, _req, res, _next) => {
 })
 
 app.listen(PORT, () => console.log(`Server running on http://127.0.0.1:${PORT}`))
+const paymentSync = setInterval(() => { void syncPendingYooKassaPayments().catch(() => {}) }, 60_000)
+paymentSync.unref()

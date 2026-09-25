@@ -1,41 +1,49 @@
-import { useEffect, useState } from 'react'
+﻿import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { api } from '../lib/api'
+import { api, type Order } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
 import PageHeader from '../components/PageHeader'
 import '../App.css'
 
-type Order = {
-  id: string; total: number; status: string; cdekTrack?: string; address?: string; createdAt: string;
-  items: { id: string; title: string; price: number; quantity: number }[]
+const PAYMENT_LABELS: Record<string, string> = {
+  PENDING: 'Ожидает оплаты', WAITING_FOR_CAPTURE: 'Ожидает подтверждения оплаты', SUCCEEDED: 'Оплачен', PAID: 'Оплачен',
+  CANCELED: 'Оплата отменена', CANCELLED: 'Оплата отменена', FAILED: 'Ошибка оплаты', REFUNDED: 'Возврат выполнен',
 }
-
-const STATUS_LABELS: Record<string, string> = {
-  NEW: 'Новый', PAID: 'Оплачен', ASSEMBLED: 'Собирается', SHIPPED: 'Отправлен', DELIVERED: 'Доставлен', CANCELLED: 'Отменён',
-}
-
-const STATUS_STEPS = ['NEW', 'PAID', 'ASSEMBLED', 'SHIPPED', 'DELIVERED']
 
 export default function ProfilePage() {
   const { user, logout, isAdmin } = useAuth()
   const navigate = useNavigate()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [ordersError, setOrdersError] = useState('')
+
+  const loadOrders = useCallback(async (background = false) => {
+    if (background) setRefreshing(true)
+    else setLoading(true)
+    try {
+      const result = await api.orders()
+      setOrders(result.orders as Order[])
+      setOrdersError('')
+    } catch (error) {
+      setOrdersError(error instanceof Error ? error.message : 'Не удалось загрузить заказы')
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }, [])
 
   useEffect(() => {
     if (!user) { navigate('/login'); return }
-    api.orders()
-      .then(({ orders }) => setOrders(orders))
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [user, navigate])
+    void loadOrders()
+    const interval = window.setInterval(() => { void loadOrders(true) }, 30000)
+    return () => window.clearInterval(interval)
+  }, [user, navigate, loadOrders])
 
   if (!user) return null
 
-  const fmtPrice = (n: number) => n.toLocaleString('ru-RU') + ' ₽'
-  const fmtDate = (s: string) => new Date(s).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
-
-  const statusIndex = (status: string) => STATUS_STEPS.indexOf(status)
+  const fmtPrice = (n?: number) => typeof n === 'number' ? n.toLocaleString('ru-RU') + ' ₽' : '—'
+  const fmtDate = (s?: string) => s ? new Date(s).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'
 
   return (
     <><PageHeader />
@@ -57,56 +65,53 @@ export default function ProfilePage() {
         </header>
 
         <section>
-          <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 400, fontSize: '1.5rem', marginBottom: '24px' }}>Мои заказы</h3>
+          <div className="orders-heading">
+            <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 400, fontSize: '1.5rem' }}>Мои заказы</h3>
+            <button type="button" className="orders-refresh" onClick={() => void loadOrders(true)} disabled={refreshing}>{refreshing ? 'Обновление…' : 'Обновить статусы'}</button>
+          </div>
           {loading && <p>Загрузка…</p>}
-          {!loading && orders.length === 0 && <p style={{ opacity: .6 }}>Заказов пока нет. <Link to="/catalog">Перейти в каталог</Link></p>}
+          {ordersError && <p className="checkout-error" role="alert">{ordersError}</p>}
+          {!loading && !ordersError && orders.length === 0 && <p style={{ opacity: .6 }}>Заказов пока нет. <Link to="/catalog">Перейти в каталог</Link></p>}
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {orders.map((order) => {
-              const idx = statusIndex(order.status)
-              const isCancelled = order.status === 'CANCELLED'
+              const paymentStatus = order.paymentStatus?.toUpperCase() || ''
+              const total = order.total ?? ((order.goodsTotal || 0) + (order.deliveryPrice || 0))
               return (
-                <div key={order.id} style={{ border: '1px solid rgba(91,45,35,.15)', padding: '24px', background: 'rgba(255,255,255,.4)' }}>
+                <article key={order.id} style={{ border: '1px solid rgba(91,45,35,.15)', padding: '24px', background: 'rgba(255,255,255,.4)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
                     <div>
                       <strong>Заказ от {fmtDate(order.createdAt)}</strong>
                       <p style={{ opacity: .6, fontSize: '.85rem', marginTop: '4px' }}>№ {order.id.slice(-8).toUpperCase()}</p>
                     </div>
-                    <strong>{fmtPrice(order.total)}</strong>
+                    <strong>{fmtPrice(total)}</strong>
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '20px' }}>
-                    {order.items.map((item) => (
-                      <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.9rem' }}>
+                    {(order.items || []).map((item) => (
+                      <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.9rem', gap: '12px' }}>
                         <span>{item.title} × {item.quantity}</span>
                         <span>{fmtPrice(item.price * item.quantity)}</span>
                       </div>
                     ))}
                   </div>
 
-                  {!isCancelled ? (
-                    <div style={{ borderTop: '1px solid rgba(91,45,35,.1)', paddingTop: '16px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                        {STATUS_STEPS.map((step) => (
-                          <span key={step} style={{ fontSize: '.75rem', opacity: STATUS_STEPS.indexOf(step) <= idx ? 1 : .4, fontWeight: STATUS_STEPS.indexOf(step) === idx ? 600 : 400 }}>
-                            {STATUS_LABELS[step]}
-                          </span>
-                        ))}
-                      </div>
-                      <div style={{ height: '4px', background: 'rgba(91,45,35,.1)', position: 'relative' }}>
-                        <div style={{ height: '100%', width: `${(idx / (STATUS_STEPS.length - 1)) * 100}%`, background: '#5b2d23', transition: 'width .6s ease' }}/>
-                      </div>
-                      {order.cdekTrack && (
-                        <p style={{ marginTop: '12px', fontSize: '.85rem' }}>
-                          Трек-номер СДЭК: <strong>{order.cdekTrack}</strong>
-                          <a href={`https://www.cdek.ru/ru/tracking?order_id=${order.cdekTrack}`} target="_blank" rel="noreferrer" style={{ marginLeft: '8px', textDecoration: 'underline' }}>Отследить</a>
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <p style={{ borderTop: '1px solid rgba(91,45,35,.1)', paddingTop: '16px', color: '#8b2a2a', fontSize: '.9rem' }}>Заказ отменён</p>
+                  <dl className="order-status-details">
+                    <div><dt>Оплата</dt><dd>{PAYMENT_LABELS[paymentStatus] || order.paymentStatus || 'Статус пока не получен'}</dd></div>
+                    {typeof order.goodsTotal === 'number' && <div><dt>Товары</dt><dd>{fmtPrice(order.goodsTotal)}</dd></div>}
+                    {typeof order.deliveryPrice === 'number' && <div><dt>Доставка</dt><dd>{fmtPrice(order.deliveryPrice)}</dd></div>}
+                    <div><dt>СДЭК</dt><dd>{order.cdekStatus || 'Информация о доставке пока не обновлена'}{order.cdekStatusCode !== undefined && order.cdekStatusCode !== null ? ` · код ${order.cdekStatusCode}` : ''}</dd></div>
+                  </dl>
+                  {order.cdekTrack && (
+                    <p style={{ marginTop: '14px', fontSize: '.9rem' }}>
+                      Трек-номер СДЭК: <strong>{order.cdekTrack}</strong>
+                      <a href={`https://www.cdek.ru/ru/tracking?order_id=${encodeURIComponent(order.cdekTrack)}`} target="_blank" rel="noreferrer" style={{ marginLeft: '8px', textDecoration: 'underline' }}>Отследить на сайте СДЭК</a>
+                    </p>
                   )}
-                </div>
+                  {paymentStatus && ['PENDING', 'WAITING_FOR_CAPTURE'].includes(paymentStatus) && (
+                    <p className="checkout-help" style={{ marginTop: '12px' }}>Заказ ожидает оплаты и пока не считается оплаченным.</p>
+                  )}
+                </article>
               )
             })}
           </div>

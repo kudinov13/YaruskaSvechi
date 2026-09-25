@@ -18,6 +18,30 @@ const FALLBACK_PRODUCTS = [
   { id: 'p10', title: 'Свеча-шкатулка Я так чувствую', slug: 'svecha-shkatulka-ya-tak-chuvstvuyu', notes: '', price: 3500, stock: 0, images: ['/Photos/Chudvstvo_One.jpg', '/Photos/Chuvstvo_Two.jpg'], featured: false, categoryId: 'c5', category: { id: 'c5', title: 'Свечи-шкатулки', slug: 'shkatulki' }, description: '«Я так чувствую» — свеча-шкатулка для тех, кто не боится быть собой.\nГипс ручной работы + натуральный соевый воск. Зажгите свечу — и наполните пространство теплом. А после она останется красивой шкатулкой с фразой, которая говорит всё без лишних слов.\nНеобычный подарок с характером и настроением.' },
 ]
 
+export type DeliveryCity = { code: number; city: string; region: string; fullName: string }
+export type PickupPoint = { code: string; name: string; address: string; workTime?: string }
+export type CheckoutItem = { candleId: string; quantity: number; variantId?: string }
+export type DeliveryQuote = {
+  goodsTotal: number
+  deliveryPrice: number
+  total: number
+  tariffCode: number
+  deliveryPeriod: { min: number; max: number }
+}
+export type Order = {
+  id: string
+  total?: number
+  goodsTotal?: number
+  deliveryPrice?: number
+  paymentStatus?: string
+  status?: string
+  cdekTrack?: string
+  cdekStatusCode?: string | number
+  cdekStatus?: string
+  createdAt?: string
+  items?: { id: string; title: string; price: number; quantity: number }[]
+}
+
 function getToken() {
   return localStorage.getItem('token') || ''
 }
@@ -157,38 +181,55 @@ export const api = {
   ),
 
   // Orders
-  createOrder: (body: { items: { candleId: string; quantity: number; id?: string; title?: string; price?: number; variantId?: string }[]; address?: string; total?: number; offerAccepted: boolean; dataProcessingConsent: boolean }) =>
-    withFallback(
-      () => request('/orders', { method: 'POST', body: JSON.stringify(body) }),
-      () => {
-        if (body.offerAccepted !== true || body.dataProcessingConsent !== true) throw new Error('Для оформления заказа необходимы принятие оферты и согласие на обработку персональных данных')
-        const user = JSON.parse(localStorage.getItem('demo_user') || 'null')
-        if (!user?.id) throw new Error('Не авторизован')
-        const orders = JSON.parse(localStorage.getItem('demo_orders') || '[]')
-        const consentAt = new Date().toISOString()
-        const order = {
-          id: 'o' + Date.now(),
-          items: body.items,
-          address: body.address,
-          total: body.total || 0,
-          status: 'NEW',
-          userId: user.id,
-          offerAcceptedAt: consentAt,
-          offerVersion: '2026-09-24',
-          dataProcessingConsentAt: consentAt,
-          dataProcessingConsentVersion: '2026-09-24',
-          createdAt: consentAt,
-        }
-        orders.push(order)
-        localStorage.setItem('demo_orders', JSON.stringify(orders))
-        return { order }
-      },
-    ),
+  deliveryCities: async (query: string): Promise<{ items: DeliveryCity[] }> => {
+    const data = await request(`/delivery/cities?q=${encodeURIComponent(query)}`)
+    const cities = Array.isArray(data.cities) ? data.cities : []
+    return { items: cities.map((city: Record<string, unknown>) => ({
+      code: Number(city.code),
+      city: String(city.city || city.name || city.full_name || ''),
+      region: String(city.region || ''),
+      fullName: String(city.full_name || city.city || city.name || ''),
+    })).filter((city: DeliveryCity) => Number.isFinite(city.code) && city.code > 0) }
+  },
+  pickupPoints: async (cityCode: number): Promise<{ items: PickupPoint[] }> => {
+    const data = await request(`/delivery/pickup-points?cityCode=${cityCode}`)
+    const points = Array.isArray(data.pickupPoints) ? data.pickupPoints : []
+    return { items: points.map((point: Record<string, unknown>) => ({
+      code: String(point.code || ''),
+      name: String(point.name || point.code || 'Пункт выдачи СДЭК'),
+      address: String((point.location as Record<string, unknown> | undefined)?.address || point.address || ''),
+      workTime: String(point.work_time || ''),
+    })).filter((point: PickupPoint) => point.code && point.address) }
+  },
+  deliveryQuote: async (body: { items: CheckoutItem[]; cityCode: number; cityName: string; deliveryPointCode: string }): Promise<DeliveryQuote> => {
+    const data = await request('/delivery/quote', { method: 'POST', body: JSON.stringify(body) })
+    return {
+      goodsTotal: Number(data.goodsTotal),
+      deliveryPrice: Number(data.deliveryPrice),
+      total: Number(data.grandTotal),
+      tariffCode: Number(data.tariff?.code),
+      deliveryPeriod: { min: Number(data.tariff?.periodMin), max: Number(data.tariff?.periodMax) },
+    }
+  },
+  createOrder: (body: {
+    items: CheckoutItem[]
+    recipientName: string
+    recipientPhone: string
+    recipientEmail: string
+    cityCode: number
+    cityName: string
+    deliveryPointCode: string
+    offerAccepted: true
+    dataProcessingConsent: true
+  }) => request('/orders', { method: 'POST', body: JSON.stringify(body) }) as Promise<{ order: Order; confirmationUrl: string }>,
   orders: () => withFallback(
     () => request('/orders'),
     () => ({ orders: JSON.parse(localStorage.getItem('demo_orders') || '[]') }),
   ),
-  order: (id: string) => request(`/orders/${id}`),
+  order: async (id: string): Promise<{ order: Order }> => {
+    const data = await request(`/orders/${encodeURIComponent(id)}`)
+    return { order: (data.order || data) as Order }
+  },
 
   // Admin
   adminCandles: () => withFallback(
@@ -241,16 +282,6 @@ export const api = {
     () => request('/admin/orders'),
     () => ({ orders: JSON.parse(localStorage.getItem('demo_orders') || '[]') }),
   ),
-  adminUpdateOrder: (id: string, body: { status?: string; cdekTrack?: string }) =>
-    withFallback(
-      () => request(`/admin/orders/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
-      () => {
-        const orders = JSON.parse(localStorage.getItem('demo_orders') || '[]')
-        const order = orders.find((o: { id: string }) => o.id === id)
-        if (order) { Object.assign(order, body); localStorage.setItem('demo_orders', JSON.stringify(orders)) }
-        return { order }
-      },
-    ),
 }
 
 export const UPLOAD_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://127.0.0.1:4000'
