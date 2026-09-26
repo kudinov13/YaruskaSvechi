@@ -81,11 +81,57 @@ router.delete('/candles/:id', async (req, res, next) => {
   } catch (e) { next(e) }
 })
 
+const categorySchema = z.object({
+  title: z.string().min(2),
+  slug: z.string().optional(),
+  order: z.number().int().optional(),
+})
+
+router.get('/categories', async (_req, res, next) => {
+  try {
+    const categories = await prisma.category.findMany({
+      orderBy: [{ order: 'asc' }, { title: 'asc' }],
+      include: { _count: { select: { items: true } } },
+    })
+    res.json({ categories })
+  } catch (e) { next(e) }
+})
+
 router.post('/categories', async (req, res, next) => {
   try {
-    const { slug, title, order } = req.body
-    const item = await prisma.category.create({ data: { slug, title, order: order || 0 } })
+    const data = categorySchema.parse(req.body)
+    let slug = data.slug || slugify(data.title)
+    const exists = await prisma.category.findUnique({ where: { slug } })
+    if (exists) slug = `${slug}-${Date.now().toString(36)}`
+    const item = await prisma.category.create({ data: { slug, title: data.title, order: data.order || 0 } })
     res.json({ item })
+  } catch (e) { next(e) }
+})
+
+router.put('/categories/:id', async (req, res, next) => {
+  try {
+    const data = categorySchema.partial().parse(req.body)
+    const update = {}
+    if (data.title !== undefined) update.title = data.title
+    if (data.order !== undefined) update.order = data.order
+    if (data.slug !== undefined && data.slug.trim()) update.slug = data.slug.trim()
+    if (data.title !== undefined && data.slug === undefined) {
+      const slug = slugify(data.title)
+      if (await prisma.category.findUnique({ where: { slug } })) {
+        // keep existing slug to avoid collision
+      } else update.slug = slug
+    }
+    const item = await prisma.category.update({ where: { id: req.params.id }, data: update })
+    res.json({ item })
+  } catch (e) { next(e) }
+})
+
+router.delete('/categories/:id', async (req, res, next) => {
+  try {
+    const count = await prisma.candle.count({ where: { categoryId: req.params.id } })
+    if (count > 0) return res.status(400).json({ error: `В категории есть товары (${count}). Сначала перенесите или удалите их.` })
+    await prisma.category.delete({ where: { id: req.params.id } })
+    res.json({ ok: true })
   } catch (e) { next(e) }
 })
 

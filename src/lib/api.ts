@@ -282,6 +282,30 @@ export const api = {
     () => request('/admin/orders'),
     () => ({ orders: JSON.parse(localStorage.getItem('demo_orders') || '[]') }),
   ),
+  adminCategories: () => withFallback(
+    () => request('/admin/categories'),
+    () => ({
+      categories: FALLBACK_CATEGORIES.map((category) => ({
+        ...category,
+        _count: { items: getDemoCandles().filter((item) => item.categoryId === category.id).length },
+      })),
+    }),
+  ),
+  adminCreateCategory: (body: { title: string; order?: number }) =>
+    withFallback(
+      () => request('/admin/categories', { method: 'POST', body: JSON.stringify(body) }),
+      () => ({ item: { id: 'dc' + Date.now(), slug: String(body.title).toLowerCase(), ...body } }),
+    ),
+  adminUpdateCategory: (id: string, body: { title?: string; order?: number }) =>
+    withFallback(
+      () => request(`/admin/categories/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+      () => ({ item: { id, ...body } }),
+    ),
+  adminDeleteCategory: (id: string) =>
+    withFallback(
+      () => request(`/admin/categories/${id}`, { method: 'DELETE' }),
+      () => ({ ok: true }),
+    ),
 }
 
 export const UPLOAD_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://127.0.0.1:4000'

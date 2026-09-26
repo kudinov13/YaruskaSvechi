@@ -13,7 +13,7 @@ type Candle = {
   shippingWeightGrams?: number | null
   categoryId: string; category?: { id: string; title: string; slug: string }
 }
-type Category = { id: string; slug: string; title: string }
+type Category = { id: string; slug: string; title: string; order?: number; _count?: { items: number } }
 type Order = {
   id: string; total?: number; goodsTotal?: number; deliveryPrice?: number; paymentStatus?: string; status?: string;
   cdekTrack?: string; cdekStatusCode?: string | number; cdekStatus?: string; createdAt: string;
@@ -24,7 +24,7 @@ type Order = {
 export default function AdminPage() {
   const { user, isAdmin, loading: authLoading } = useAuth()
   const navigate = useNavigate()
-  const [tab, setTab] = useState<'candles' | 'popular' | 'orders'>('candles')
+  const [tab, setTab] = useState<'candles' | 'popular' | 'orders' | 'categories'>('candles')
   const [candles, setCandles] = useState<Candle[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [orders, setOrders] = useState<Order[]>([])
@@ -37,7 +37,7 @@ export default function AdminPage() {
   }, [user, isAdmin, authLoading, navigate])
 
   const load = () => {
-    Promise.all([api.adminCandles(), api.categories(), api.adminOrders()])
+    Promise.all([api.adminCandles(), api.adminCategories(), api.adminOrders()])
       .then(([c, cat, o]) => { setCandles(c.items); setCategories(cat.categories); setOrders(o.orders) })
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -90,6 +90,7 @@ export default function AdminPage() {
           <button onClick={() => setTab('candles')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'candles' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'candles' ? 600 : 400 }}>Товары</button>
           <button onClick={() => setTab('popular')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'popular' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'popular' ? 600 : 400 }}>Популярные</button>
           <button onClick={() => setTab('orders')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'orders' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'orders' ? 600 : 400 }}>Заказы</button>
+          <button onClick={() => setTab('categories')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'categories' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'categories' ? 600 : 400 }}>Категории</button>
         </div>
 
         {tab === 'candles' && (
@@ -194,9 +195,118 @@ export default function AdminPage() {
             )}
           </section>
         )}
+
+        {tab === 'categories' && <CategoriesPanel categories={categories} onChanged={load} loading={loading} />}
       </div>
     </main>
     </>
+  )
+}
+
+const inputStyle = { display: 'block', width: '100%', padding: '10px', marginTop: '4px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }
+
+function CategoriesPanel({ categories, onChanged, loading }: {
+  categories: Category[]
+  onChanged: () => void
+  loading: boolean
+}) {
+  const [title, setTitle] = useState('')
+  const [order, setOrder] = useState('0')
+  const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editTitle, setEditTitle] = useState('')
+  const [editOrder, setEditOrder] = useState('0')
+
+  const startEdit = (category: Category) => {
+    setEditingId(category.id)
+    setEditTitle(category.title)
+    setEditOrder(String(category.order ?? 0))
+    setError('')
+  }
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    if (title.trim().length < 2) { setError('Введите название категории (минимум 2 символа)'); return }
+    setSaving(true)
+    try {
+      await api.adminCreateCategory({ title: title.trim(), order: parseInt(order) || 0 })
+      setTitle(''); setOrder('0'); onChanged()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка сохранения')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleUpdate = async (id: string) => {
+    setError('')
+    if (editTitle.trim().length < 2) { setError('Введите название категории (минимум 2 символа)'); return }
+    setSaving(true)
+    try {
+      await api.adminUpdateCategory(id, { title: editTitle.trim(), order: parseInt(editOrder) || 0 })
+      setEditingId(null); onChanged()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка сохранения')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDelete = async (category: Category) => {
+    const count = category._count?.items ?? 0
+    if (count > 0) { setError(`«${category.title}» содержит ${count} товаров — сначала перенесите или удалите их`); return }
+    if (!confirm(`Удалить категорию «${category.title}»?`)) return
+    setError('')
+    try {
+      await api.adminDeleteCategory(category.id)
+      onChanged()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка удаления')
+    }
+  }
+
+  return (
+    <section>
+      <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.4rem', marginBottom: '8px' }}>Категории ({categories.length})</h3>
+      <p style={{ opacity: .6, marginBottom: '20px', fontSize: '.9rem' }}>Категории видны в каталоге, пока в них есть товары. Удалить можно только пустую категорию.</p>
+
+      <form onSubmit={handleCreate} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end', border: '1px solid rgba(91,45,35,.2)', padding: '16px', marginBottom: '20px', background: 'rgba(255,255,255,.6)' }}>
+        <label style={{ flex: '1 1 220px' }}>Название<input value={title} onChange={(e) => setTitle(e.target.value)} required style={inputStyle}/></label>
+        <label style={{ flex: '0 0 120px' }}>Порядок<input type="number" value={order} onChange={(e) => setOrder(e.target.value)} style={inputStyle}/></label>
+        <button type="submit" disabled={saving} style={{ minHeight: '42px', padding: '10px 20px', cursor: 'pointer', background: '#5b2d23', color: '#eee8df', border: '1px solid #5b2d23', fontFamily: 'inherit' }}>+ Добавить</button>
+      </form>
+
+      {error && <p style={{ color: '#8b2a2a', fontSize: '.9rem', marginBottom: '16px' }}>{error}</p>}
+
+      {loading ? <p>Загрузка…</p> : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {categories.map((category) => (
+            <div key={category.id} style={{ border: '1px solid rgba(91,45,35,.15)', padding: '14px 16px', background: 'rgba(255,255,255,.4)', display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+              {editingId === category.id ? (
+                <>
+                  <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} style={{ ...inputStyle, marginTop: 0, flex: '1 1 200px' }}/>
+                  <input type="number" value={editOrder} onChange={(e) => setEditOrder(e.target.value)} style={{ ...inputStyle, marginTop: 0, flex: '0 0 90px' }} title="Порядок"/>
+                  <button onClick={() => handleUpdate(category.id)} disabled={saving} style={{ minHeight: '38px', padding: '8px 14px', cursor: 'pointer', fontFamily: 'inherit' }}>Сохранить</button>
+                  <button onClick={() => setEditingId(null)} style={{ minHeight: '38px', padding: '8px 14px', cursor: 'pointer', fontFamily: 'inherit' }}>Отмена</button>
+                </>
+              ) : (
+                <>
+                  <strong style={{ flex: '1 1 200px' }}>{category.title}</strong>
+                  <span style={{ fontSize: '.8rem', opacity: .5 }}>/{category.slug}</span>
+                  <span style={{ fontSize: '.85rem', opacity: .6 }}>Товаров: {category._count?.items ?? '—'}</span>
+                  <span style={{ fontSize: '.85rem', opacity: .6 }}>Порядок: {category.order ?? 0}</span>
+                  <button onClick={() => startEdit(category)} style={{ minHeight: '36px', padding: '6px 14px', cursor: 'pointer', fontSize: '.8rem', fontFamily: 'inherit' }}>Изменить</button>
+                  <button onClick={() => handleDelete(category)} style={{ minHeight: '36px', padding: '6px 14px', cursor: 'pointer', fontSize: '.8rem', color: '#8b2a2a', fontFamily: 'inherit' }}>Удалить</button>
+                </>
+              )}
+            </div>
+          ))}
+          {categories.length === 0 && <p style={{ opacity: .6 }}>Категорий пока нет</p>}
+        </div>
+      )}
+    </section>
   )
 }
 
