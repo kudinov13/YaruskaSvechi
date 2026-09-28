@@ -98,7 +98,7 @@ a:hover .placeholder-frame, .product-card:hover .placeholder-frame { background:
 .tone-hero::before { background: radial-gradient(circle at 70% 45%, #5d3024 0 8%, transparent 27%), linear-gradient(100deg, #160f0d 0%, #2d1a15 39%, #4c2b1e 68%, #17100e 100%); }
 
 /* ===== Hero ===== */
-.hero-section { --mx: 68%; --my: 38%; color: #f4eadb; min-height: 100svh; overflow: hidden; position: relative; }
+.hero-section { --mx: 68%; --my: 38%; color: #f4eadb; min-height: 100vh; min-height: 100svh; overflow: hidden; position: relative; }
 .hero-solid { background: radial-gradient(circle at 70% 35%, #5d1f26 0%, #3a1218 45%, #1f0a0e 100%); display: flex; align-items: center; justify-content: center; }
 .hero-solid .hero-copy { position: static; transform: none; left: auto; top: auto; width: min(820px, calc(100% - 48px)); text-align: center; display: flex; flex-direction: column; align-items: center; }
 .hero-solid .hero-note, .hero-solid .scroll-cue { display: none; }
@@ -384,7 +384,7 @@ a:hover .placeholder-frame, .product-card:hover .placeholder-frame { background:
   .nav.is-open { opacity: 1; pointer-events: auto; transform: translateY(0); }
   .nav a { font-size: 14px; padding: 14px; }
 
-  .hero-section { min-height: 100svh; }
+  .hero-section { min-height: 100vh; min-height: 100svh; }
   .hero-photo { position: absolute; inset: 0; aspect-ratio: auto; }
   .hero-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .hero-photo::before { position: absolute; inset: 0; }
@@ -588,7 +588,7 @@ a:hover .placeholder-frame, .product-card:hover .placeholder-frame { background:
   .product-page .product-detail-grid > div:last-child > div[style*="flex"]:last-child a { width: 100% !important; justify-content: center !important; }
 }
 
-.legal-page { min-height: 100svh; padding-block: 128px 88px; }
+.legal-page { min-height: 100vh; min-height: 100svh; padding-block: 128px 88px; }
 .legal-layout { display: grid; grid-template-columns: minmax(190px, 245px) minmax(0, 780px); gap: clamp(32px, 6vw, 100px); align-items: start; }
 .legal-navigation { position: sticky; top: 120px; }
 .legal-navigation .eyebrow { margin: 36px 0 18px; }
