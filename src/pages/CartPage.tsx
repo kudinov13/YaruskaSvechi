@@ -4,12 +4,14 @@ import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { api, imgUrl, type DeliveryCity, type DeliveryQuote, type PickupPoint } from '../lib/api'
 import PageHeader from '../components/PageHeader'
+import { useSeo } from '../lib/seo'
 import '../App.css'
 
 const fmtPrice = (n: number) => n.toLocaleString('ru-RU') + ' ₽'
 const imgSrc = (img?: string) => imgUrl(img)
 
 export default function CartPage() {
+  useSeo({ title: 'Корзина', noindex: true })
   const { items, setQty, remove, total, clear } = useCart()
   const { user } = useAuth()
   const navigate = useNavigate()

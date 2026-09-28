@@ -9,6 +9,7 @@ import orderRoutes from './routes/orders.js'
 import adminRoutes from './routes/admin.js'
 import deliveryRoutes from './routes/delivery.js'
 import webhookRoutes, { syncPendingYooKassaPayments } from './routes/webhooks.js'
+import sitemapRoutes from './routes/sitemap.js'
 
 dotenv.config()
 
@@ -30,6 +31,7 @@ app.use('/api/delivery', deliveryRoutes)
 app.use('/api/orders', orderRoutes)
 app.use('/api/webhooks', webhookRoutes)
 app.use('/api/admin', adminRoutes)
+app.use('/', sitemapRoutes)
 
 app.use((err, _req, res, _next) => {
   console.error(err)

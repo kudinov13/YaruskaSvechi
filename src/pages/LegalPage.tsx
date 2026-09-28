@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import { consent, legalRevision, offer, privacy, type LegalDocument } from '../lib/legalDocuments'
+import { useSeo } from '../lib/seo'
 import '../App.css'
 
 const pages: Record<string, { eyebrow: string; document: LegalDocument }> = {
@@ -26,10 +27,13 @@ export default function LegalPage() {
   const { pathname } = useLocation()
   const { eyebrow, document: legalDoc } = pages[pathname] || pages['/offer']
 
+  useSeo({
+    title: legalDoc.title,
+    canonical: pathname,
+  })
+
   useEffect(() => {
     window.scrollTo(0, 0)
-    document.title = `${legalDoc.title} — ЯРУСКА`
-    return () => { document.title = 'Яруска — авторские свечи ручной работы' }
   }, [legalDoc, pathname])
 
   return <>

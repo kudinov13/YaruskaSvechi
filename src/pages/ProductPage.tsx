@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api, imgUrl } from '../lib/api'
+import { useSeo } from '../lib/seo'
 import { useCart } from '../context/CartContext'
 import { useFavorites } from '../context/FavoritesContext'
 import PageHeader from '../components/PageHeader'
@@ -38,6 +39,41 @@ export default function ProductPage() {
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
   }, [id])
+
+  useSeo({
+    title: item ? `${item.title} — соевый воск, гипс, ручная роспись` : undefined,
+    description: item?.description?.slice(0, 180) || undefined,
+    canonical: item ? `/product/${item.slug || item.id}` : undefined,
+    image: item?.images?.[0] ? imgUrl(item.images[0]) : undefined,
+    jsonLd: item ? [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: item.title,
+        image: item.images.map((img) => `https://yaruska.ru${img}`),
+        description: item.description || item.title,
+        material: 'Гипс, соевый воск',
+        brand: { '@type': 'Brand', name: 'ЯРУСКА' },
+        category: item.category?.title,
+        offers: {
+          '@type': 'Offer',
+          url: `https://yaruska.ru/product/${item.slug || item.id}`,
+          priceCurrency: 'RUB',
+          price: item.price,
+          availability: item.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Главная', item: 'https://yaruska.ru/' },
+          { '@type': 'ListItem', position: 2, name: 'Каталог', item: 'https://yaruska.ru/catalog' },
+          { '@type': 'ListItem', position: 3, name: item.title, item: `https://yaruska.ru/product/${item.slug || item.id}` },
+        ],
+      },
+    ] : undefined,
+  })
 
   const fmtPrice = (n: number) => n.toLocaleString('ru-RU') + ' ₽'
   const imgSrc = (img?: string) => imgUrl(img)

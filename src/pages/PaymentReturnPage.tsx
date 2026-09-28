@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { api, type Order } from '../lib/api'
 import PageHeader from '../components/PageHeader'
+import { useSeo } from '../lib/seo'
 import '../App.css'
 
 type PaymentState = 'checking' | 'pending' | 'success' | 'canceled' | 'error'
@@ -13,6 +14,7 @@ const canceledStatuses = new Set(['CANCELED', 'CANCELLED', 'VOIDED', 'EXPIRED'])
 const errorStatuses = new Set(['FAILED', 'ERROR'])
 
 export default function PaymentReturnPage() {
+  useSeo({ title: 'Статус оплаты', noindex: true })
   const { user, loading: authLoading } = useAuth()
   const { clear } = useCart()
   const navigate = useNavigate()

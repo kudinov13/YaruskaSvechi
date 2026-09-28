@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { api, type Order } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
 import PageHeader from '../components/PageHeader'
+import { useSeo } from '../lib/seo'
 import '../App.css'
 
 const PAYMENT_LABELS: Record<string, string> = {
@@ -11,6 +12,7 @@ const PAYMENT_LABELS: Record<string, string> = {
 }
 
 export default function ProfilePage() {
+  useSeo({ title: 'Личный кабинет', noindex: true })
   const { user, logout, isAdmin } = useAuth()
   const navigate = useNavigate()
   const [orders, setOrders] = useState<Order[]>([])

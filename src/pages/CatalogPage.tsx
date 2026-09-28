@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, imgUrl } from '../lib/api'
+import { useSeo } from '../lib/seo'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { useFavorites } from '../context/FavoritesContext'
@@ -27,6 +28,19 @@ export default function CatalogPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [addedId, setAddedId] = useState<string | null>(null)
+
+  useSeo({
+    title: 'Купить свечи-шкатулки ручной работы — каталог',
+    description: 'Каталог авторских свечей-шкатулок из гипса и соевого воска: матрёшки, самовары, караваи. Ручная роспись, доставка по России.',
+    canonical: '/catalog',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Каталог свечей ручной работы ЯРУСКА',
+      url: 'https://yaruska.ru/catalog',
+      isPartOf: { '@type': 'WebSite', name: 'ЯРУСКА', url: 'https://yaruska.ru' },
+    },
+  })
 
   useEffect(() => {
     Promise.all([api.products(), api.categories()])

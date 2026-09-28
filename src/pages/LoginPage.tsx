@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import PageHeader from '../components/PageHeader'
+import { useSeo } from '../lib/seo'
 import '../App.css'
 
 export default function LoginPage() {
+  useSeo({ title: 'Вход', noindex: true })
   const { login } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()

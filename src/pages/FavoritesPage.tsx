@@ -3,12 +3,14 @@ import { useFavorites } from '../context/FavoritesContext'
 import { useCart } from '../context/CartContext'
 import { imgUrl } from '../lib/api'
 import PageHeader from '../components/PageHeader'
+import { useSeo } from '../lib/seo'
 import '../App.css'
 
 const fmtPrice = (n: number) => n.toLocaleString('ru-RU') + ' ₽'
 const imgSrc = (img?: string) => imgUrl(img)
 
 export default function FavoritesPage() {
+  useSeo({ title: 'Избранное', noindex: true })
   const { items, remove } = useFavorites()
   const { add } = useCart()
 

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { api, imgUrl } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
 import PageHeader from '../components/PageHeader'
+import { useSeo } from '../lib/seo'
 import '../App.css'
 
 type Candle = {
@@ -22,6 +23,7 @@ type Order = {
 }
 
 export default function AdminPage() {
+  useSeo({ title: 'Админ-панель', noindex: true })
   const { user, isAdmin, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const [tab, setTab] = useState<'candles' | 'popular' | 'orders' | 'categories'>('candles')

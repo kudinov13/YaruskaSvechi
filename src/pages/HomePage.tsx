@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, imgUrl } from '../lib/api'
+import { useSeo } from '../lib/seo'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { useFavorites } from '../context/FavoritesContext'
@@ -57,6 +58,34 @@ function HomePage() {
   const { user, isAdmin } = useAuth()
   const { count: cartCount, add } = useCart()
   const { count: favCount } = useFavorites()
+
+  useSeo({
+    title: 'Авторские свечи-шкатулки ручной работы из гипса и соевого воска',
+    canonical: '/',
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: 'ЯРУСКА',
+        url: 'https://yaruska.ru',
+        logo: 'https://yaruska.ru/favicon.svg',
+        description: 'Авторские свечи ручной работы из гипса и соевого воска в русском стиле',
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'ЯРУСКА',
+        url: 'https://yaruska.ru',
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Store',
+        name: 'ЯРУСКА',
+        url: 'https://yaruska.ru',
+        description: 'Интернет-магазин авторских свечей-шкатулок ручной работы. Доставка СДЭК по России.',
+      },
+    ],
+  })
 
   const fmtPrice = (n: number) => n.toLocaleString('ru-RU') + ' ₽'
 
