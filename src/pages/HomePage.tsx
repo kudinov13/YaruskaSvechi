@@ -39,7 +39,7 @@ function PhotoPlaceholder({ className = '', label = 'Место для фото�
   return (
     <div className={`photo-placeholder tone-${tone} ${className}`} aria-label={label}>
       {src ? (
-        mobileSrc ? <picture><source media="(max-width: 768px)" srcSet={mobileSrc}/><img src={src} alt={label} loading="lazy"/></picture> : <img src={src} alt={label} loading="lazy"/>
+        mobileSrc ? <picture><source media="(max-width: 768px)" srcSet={mobileSrc}/><img src={src} alt={label} loading="lazy" decoding="async"/></picture> : <img src={src} alt={label} loading="lazy" decoding="async"/>
       ) : <div className="placeholder-frame"><span>Фото</span><small>{label}</small></div>}
     </div>
   )

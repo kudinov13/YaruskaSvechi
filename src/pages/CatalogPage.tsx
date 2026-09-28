@@ -95,7 +95,7 @@ export default function CatalogPage() {
               <article className="product-card catalog-card" key={item.id} style={{ position: 'relative' }}>
                 <Link to={`/product/${item.id}`} className="product-media" style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div className="photo-placeholder tone-ruby" aria-label={item.title}>
-                    {imgSrc(item) ? <img src={imgSrc(item)} alt={item.title} loading="lazy"/> : <div className="placeholder-frame"><span>Фото</span><small>{item.title}</small></div>}
+                    {imgSrc(item) ? <img src={imgSrc(item)} alt={item.title} loading="lazy" decoding="async"/> : <div className="placeholder-frame"><span>Фото</span><small>{item.title}</small></div>}
                   </div>
                 </Link>
                 <button

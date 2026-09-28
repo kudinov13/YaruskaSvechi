@@ -180,7 +180,7 @@ export default function CartPage() {
             {items.map((item) => (
               <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '80px 1fr auto auto', gap: '16px', alignItems: 'center', padding: '16px', border: '1px solid rgba(91,45,35,.15)', background: 'rgba(255,255,255,.4)' }} className="cart-row">
                 <Link to={`/product/${item.productId || item.id}`} style={{ width: '80px', height: '80px', display: 'block', position: 'relative', overflow: 'hidden' }}>
-                  {item.image ? <img src={imgSrc(item.image)} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} /> : <div className="placeholder-frame" style={{ width: '100%', height: '100%' }}><small>Фото</small></div>}
+                  {item.image ? <img src={imgSrc(item.image)} alt={item.title} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} /> : <div className="placeholder-frame" style={{ width: '100%', height: '100%' }}><small>Фото</small></div>}
                 </Link>
                 <div>
                   <Link to={`/product/${item.productId || item.id}`} style={{ fontWeight: 600, textDecoration: 'none', color: 'inherit' }}>{item.title}</Link>

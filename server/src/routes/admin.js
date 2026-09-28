@@ -2,6 +2,7 @@ import { Router } from 'express'
 import multer from 'multer'
 import path from 'node:path'
 import fs from 'node:fs'
+import sharp from 'sharp'
 import { z } from 'zod'
 import { prisma } from '../db.js'
 import { authRequired, adminRequired } from '../middleware/auth.js'
@@ -36,9 +37,22 @@ const candleSchema = z.object({
   featured: z.boolean().optional(),
 })
 
-router.post('/upload', upload.array('files', 8), (req, res) => {
-  const files = (req.files || []).map(f => `/uploads/${f.filename}`)
-  res.json({ files })
+router.post('/upload', upload.array('files', 8), async (req, res, next) => {
+  try {
+    for (const file of req.files || []) {
+      const img = sharp(file.path).rotate()
+      const meta = await img.metadata()
+      if (meta.width > 1920) img.resize({ width: 1920, withoutEnlargement: true })
+      const tmp = `${file.path}.tmp`
+      if (file.mimetype === 'image/png') await img.png({ compressionLevel: 9, palette: true }).toFile(tmp)
+      else if (file.mimetype === 'image/webp') await img.webp({ quality: 82 }).toFile(tmp)
+      else await img.jpeg({ quality: 82, mozjpeg: true, progressive: true }).toFile(tmp)
+      if (fs.statSync(tmp).size < file.size) fs.renameSync(tmp, file.path)
+      else fs.unlinkSync(tmp)
+    }
+    const files = (req.files || []).map(f => `/uploads/${f.filename}`)
+    res.json({ files })
+  } catch (e) { next(e) }
 })
 
 router.get('/candles', async (_req, res, next) => {

@@ -39,7 +39,7 @@ export default function FavoritesPage() {
           {items.map((item) => (
             <article key={item.id} className="product-card" style={{ position: 'relative' }}>
               <Link to={`/product/${item.id}`} className="photo-placeholder tone-ruby" style={{ aspectRatio: '1', position: 'relative', display: 'block' }}>
-                {item.image ? <img src={imgSrc(item.image)} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}/> : <div className="placeholder-frame"><small>{item.title}</small></div>}
+                {item.image ? <img src={imgSrc(item.image)} alt={item.title} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}/> : <div className="placeholder-frame"><small>{item.title}</small></div>}
               </Link>
               <button onClick={() => remove(item.id)} style={{ position: 'absolute', top: '8px', right: '8px', width: '32px', height: '32px', border: 'none', background: 'rgba(255,255,255,.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="Убрать из избранного">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="#5b2d23" stroke="#5b2d23" strokeWidth="1.45" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20S4 15.5 4 9.5C4 6 8.5 4.5 12 8c3.5-3.5 8-2 8 1.5 0 6-8 10.5-8 10.5Z"/></svg>

@@ -76,7 +76,7 @@ export default function ProductPage() {
           <div>
             <div className="photo-placeholder tone-ruby" style={{ aspectRatio: '4 / 5', position: 'relative', overflow: 'hidden' }}>
               {galleryImages[activeImg] ? (
-                <img src={imgSrc(galleryImages[activeImg])} alt={selectedVariant ? `${item.title} — ${selectedVariant.name}` : item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}/>
+                <img src={imgSrc(galleryImages[activeImg])} alt={selectedVariant ? `${item.title} — ${selectedVariant.name}` : item.title} decoding="async" fetchPriority="high" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}/>
               ) : (
                 <div className="placeholder-frame"><span>Фото</span><small>{item.title}</small></div>
               )}
@@ -85,7 +85,7 @@ export default function ProductPage() {
               <div style={{ display: 'flex', gap: '8px', marginTop: '12px', overflowX: 'auto' }}>
                 {galleryImages.map((img, i) => (
                   <button key={i} onClick={() => setActiveImg(i)} style={{ width: '64px', height: '64px', border: i === activeImg ? '2px solid #5b2d23' : '1px solid rgba(91,45,35,.2)', cursor: 'pointer', padding: 0, background: 'transparent' }}>
-                    <img src={imgSrc(img)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
+                    <img src={imgSrc(img)} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
                   </button>
                 ))}
               </div>
