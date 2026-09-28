@@ -11,6 +11,7 @@ type SeoOptions = {
   canonical?: string
   image?: string
   noindex?: boolean
+  ogType?: string
   jsonLd?: Record<string, unknown> | Record<string, unknown>[]
 }
 
@@ -24,7 +25,7 @@ function setMeta(selector: string, attrs: Record<string, string>, content: strin
   el.setAttribute('content', content)
 }
 
-export function useSeo({ title, description, canonical, image, noindex, jsonLd }: SeoOptions) {
+export function useSeo({ title, description, canonical, image, noindex, ogType, jsonLd }: SeoOptions) {
   useEffect(() => {
     const fullTitle = title ? `${title} — ${SITE}` : `${SITE} — авторские свечи ручной работы`
     const desc = description || DEFAULT_DESC
@@ -38,7 +39,7 @@ export function useSeo({ title, description, canonical, image, noindex, jsonLd }
     setMeta('meta[property="og:description"]', { property: 'og:description' }, desc)
     setMeta('meta[property="og:url"]', { property: 'og:url' }, url)
     setMeta('meta[property="og:image"]', { property: 'og:image' }, img)
-    setMeta('meta[property="og:type"]', { property: 'og:type' }, 'website')
+    setMeta('meta[property="og:type"]', { property: 'og:type' }, ogType || 'website')
     setMeta('meta[name="twitter:card"]', { name: 'twitter:card' }, 'summary_large_image')
     setMeta('meta[name="twitter:title"]', { name: 'twitter:title' }, fullTitle)
     setMeta('meta[name="twitter:description"]', { name: 'twitter:description' }, desc)
@@ -61,5 +62,5 @@ export function useSeo({ title, description, canonical, image, noindex, jsonLd }
       document.head.appendChild(script)
     }
     return () => { script?.remove() }
-  }, [title, description, canonical, image, noindex, JSON.stringify(jsonLd)])
+  }, [title, description, canonical, image, noindex, ogType, JSON.stringify(jsonLd)])
 }

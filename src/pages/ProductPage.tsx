@@ -45,6 +45,7 @@ export default function ProductPage() {
     description: item?.description?.slice(0, 180) || undefined,
     canonical: item ? `/product/${item.slug || item.id}` : undefined,
     image: item?.images?.[0] ? imgUrl(item.images[0]) : undefined,
+    ogType: 'product',
     jsonLd: item ? [
       {
         '@context': 'https://schema.org',
