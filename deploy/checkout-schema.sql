@@ -1,0 +1,25 @@
+ALTER TABLE "Candle"
+  ADD COLUMN IF NOT EXISTS "shippingPackagePreset" TEXT,
+  ADD COLUMN IF NOT EXISTS "shippingWeightGrams" INTEGER;
+
+ALTER TABLE "Order"
+  ADD COLUMN IF NOT EXISTS "cdekOrderUuid" TEXT,
+  ADD COLUMN IF NOT EXISTS "cdekStatus" TEXT,
+  ADD COLUMN IF NOT EXISTS "cdekStatusCode" TEXT,
+  ADD COLUMN IF NOT EXISTS "cdekStatusUpdatedAt" TIMESTAMP(3),
+  ADD COLUMN IF NOT EXISTS "deliveryCity" TEXT,
+  ADD COLUMN IF NOT EXISTS "deliveryCityCode" INTEGER,
+  ADD COLUMN IF NOT EXISTS "deliveryPointAddress" TEXT,
+  ADD COLUMN IF NOT EXISTS "deliveryPointCode" TEXT,
+  ADD COLUMN IF NOT EXISTS "deliveryPrice" INTEGER NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "deliveryTariffCode" INTEGER,
+  ADD COLUMN IF NOT EXISTS "goodsTotal" INTEGER,
+  ADD COLUMN IF NOT EXISTS "paymentConfirmationUrl" TEXT,
+  ADD COLUMN IF NOT EXISTS "paymentId" TEXT,
+  ADD COLUMN IF NOT EXISTS "paymentStatus" TEXT NOT NULL DEFAULT 'PENDING',
+  ADD COLUMN IF NOT EXISTS "recipientEmail" TEXT,
+  ADD COLUMN IF NOT EXISTS "recipientName" TEXT,
+  ADD COLUMN IF NOT EXISTS "recipientPhone" TEXT;
+
+CREATE UNIQUE INDEX IF NOT EXISTS "Order_paymentId_key" ON "Order"("paymentId");
+CREATE UNIQUE INDEX IF NOT EXISTS "Order_cdekOrderUuid_key" ON "Order"("cdekOrderUuid");

@@ -34,4 +34,13 @@ Git remotes:
 - Проверка API: `curl https://yaruska.ru/api/health`
 
 ## Deploy helpers
-`deploy/` — post-receive хук, nginx-конфиг, systemd-юнит (секретные `.env`/SQL-файлы в .gitignore).
+`deploy/` — post-receive хук, nginx-конфиг, systemd-юнит, health-check и schema-скрипты (секретные `.env`/SQL-файлы в .gitignore).
+
+## Переезд на новый ПК
+1. `git clone https://github.com/kudinov13/YaruskaSvechi.git` (repo приватный — нужен доступ к аккаунту kudinov13).
+2. Настроить SSH к серверу: скопировать ключ `~/.ssh/yaruska_key` со старой машины и добавить в `~/.ssh/config`:
+   `Host yaruska → HostName 157.22.193.196, User root, IdentityFile ~/.ssh/yaruska_key`
+3. Секреты НЕ в репо — вытянуть с сервера: `scp yaruska:/opt/yaruska-api/.env server/.env` (шаблон переменных: `server/.env.example`).
+4. Локально: `npm ci`, `cd server && npm ci && npx prisma generate`. Фронт `npm run dev`, бэк `npm run dev` в `server/`.
+5. Деплой: `git remote add prod yaruska:/srv/git/yaruska.git` → `git push prod main`.
+6. Загруженные фото товаров лежат только на сервере (`/opt/yaruska-api/uploads`) — для локальной копии: `scp -r yaruska:/opt/yaruska-api/uploads server/uploads`.
