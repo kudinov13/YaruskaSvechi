@@ -7,6 +7,7 @@ const BASE = 'https://yaruska.ru'
 const STATIC_PAGES = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
   { path: '/catalog', priority: '0.9', changefreq: 'daily' },
+  { path: '/fragrances', priority: '0.6', changefreq: 'monthly' },
   { path: '/delivery', priority: '0.4', changefreq: 'monthly' },
   { path: '/returns', priority: '0.3', changefreq: 'monthly' },
   { path: '/contacts', priority: '0.4', changefreq: 'monthly' },

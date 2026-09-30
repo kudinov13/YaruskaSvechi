@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { api, imgUrl, type DeliveryCity, type DeliveryQuote, type PickupPoint } from '../lib/api'
+import { FRAGRANCES } from '../lib/fragrances'
 import PageHeader from '../components/PageHeader'
 import { useSeo } from '../lib/seo'
 import '../App.css'
@@ -12,7 +13,7 @@ const imgSrc = (img?: string) => imgUrl(img)
 
 export default function CartPage() {
   useSeo({ title: 'Корзина', noindex: true })
-  const { items, setQty, remove, total, clear } = useCart()
+  const { items, setQty, setFragrance, remove, total, clear } = useCart()
   const { user } = useAuth()
   const navigate = useNavigate()
   const [ordering, setOrdering] = useState(false)
@@ -22,6 +23,7 @@ export default function CartPage() {
   const [recipientName, setRecipientName] = useState('')
   const [recipientPhone, setRecipientPhone] = useState('')
   const [recipientEmail, setRecipientEmail] = useState('')
+  const [orderComment, setOrderComment] = useState('')
   const [cityQuery, setCityQuery] = useState('')
   const [cities, setCities] = useState<DeliveryCity[]>([])
   const [selectedCity, setSelectedCity] = useState<DeliveryCity | null>(null)
@@ -131,6 +133,13 @@ export default function CartPage() {
     setOrdering(true)
     setOrderError('')
     try {
+      const fragranceLines = items
+        .filter((item) => item.fragrance)
+        .map((item) => `${item.title} × ${item.quantity} — аромат «${item.fragrance}»`)
+      const comment = [
+        ...(fragranceLines.length ? [`Ароматы: ${fragranceLines.join('; ')}`] : []),
+        orderComment.trim(),
+      ].filter(Boolean).join('\n')
       const { order, confirmationUrl } = await api.createOrder({
         items: JSON.parse(cartSignature),
         recipientName: recipientName.trim(),
@@ -139,6 +148,7 @@ export default function CartPage() {
         cityCode: selectedCity.code,
         cityName: selectedCity.city,
         deliveryPointCode,
+        comment: comment || undefined,
         offerAccepted: true,
         dataProcessingConsent: true,
       })
@@ -187,6 +197,12 @@ export default function CartPage() {
                 <div>
                   <Link to={`/product/${item.productId || item.id}`} style={{ fontWeight: 600, textDecoration: 'none', color: 'inherit' }}>{item.title}</Link>
                   <p style={{ fontSize: '.85rem', opacity: .6, marginTop: '4px' }}>{fmtPrice(item.price)} / шт</p>
+                  <label style={{ display: 'block', fontSize: '.8rem', opacity: .7, marginTop: '8px' }}>Аромат
+                    <select value={item.fragrance || ''} onChange={(event) => setFragrance(item.id, event.target.value)} style={{ display: 'block', width: '100%', marginTop: '4px', padding: '6px 8px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit', fontSize: '.85rem' }}>
+                      <option value="">Не выбран</option>
+                      {FRAGRANCES.map((fragrance) => <option key={fragrance.slug} value={fragrance.name}>{fragrance.name}</option>)}
+                    </select>
+                  </label>
                 </div>
                 <div className="cart-qty">
                   <button type="button" onClick={() => setQty(item.id, item.quantity - 1)} aria-label={`Уменьшить количество ${item.title}`}>−</button>
@@ -250,6 +266,21 @@ export default function CartPage() {
               )}
               {quoteLoading && <p className="checkout-help" role="status">Рассчитываем доставку…</p>}
               {selectedCity && deliveryPointCode && !quoteLoading && !quote && orderError && <button type="button" className="orders-refresh" onClick={() => setQuoteRetry((value) => value + 1)}>Повторить расчёт доставки</button>}
+            </section>
+
+            <section className="checkout-section" aria-labelledby="comment-heading">
+              <h3 id="comment-heading">Комментарий к заказу</h3>
+              <label>Аромат и пожелания
+                <textarea
+                  value={orderComment}
+                  onChange={(event) => setOrderComment(event.target.value)}
+                  rows={3}
+                  maxLength={2000}
+                  placeholder="Например: свечу «Самовар» — с ароматом «Вечер у камина», остальные — «Таёжные дали»"
+                  style={{ display: 'block', width: '100%', marginTop: '4px', padding: '10px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit', resize: 'vertical' }}
+                />
+              </label>
+              <p className="checkout-help">Выбранные у товаров ароматы добавятся в комментарий автоматически. Описания композиций — на странице <Link to="/fragrances" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>«Ароматы»</Link>. Если аромат не указан, мы свяжемся с вами перед отправкой.</p>
             </section>
 
             <section className="checkout-totals" aria-label="Состав и стоимость заказа">

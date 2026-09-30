@@ -120,6 +120,7 @@ function HomePage() {
           <Link className="brand brand-light" to="/" aria-label="Яруска, на главную"><strong>ЯРУСКА</strong><span>авторские свечи<br/>ручной работы</span></Link>
           <nav className={menuOpen ? 'nav is-open' : 'nav'} aria-label="Основная навигация">
             <Link to="/catalog" onClick={() => setMenuOpen(false)}>Коллекции</Link>
+            <Link to="/fragrances" onClick={() => setMenuOpen(false)}>Ароматы</Link>
             <a href="#story" onClick={() => setMenuOpen(false)}>О бренде</a>
             <Link to="/delivery" onClick={() => setMenuOpen(false)}>Доставка</Link>
             <Link to="/contacts" onClick={() => setMenuOpen(false)}>Контакты</Link>
@@ -255,7 +256,7 @@ function HomePage() {
         <div className="shell footer-main">
           <Link className="brand brand-light" to="/"><strong>ЯРУСКА</strong><span>авторские свечи<br/>ручной работы</span></Link>
           <div className="newsletter"><p>Связаться с нами</p><p>Ющенко Валерия Александровна · ИНН 621304947080</p><a href="mailto:ekozza@bk.ru">ekozza@bk.ru</a><br/><a href="tel:+79534393158">+7 (953) 439-31-58</a></div>
-          <nav className="footer-nav" aria-label="Навигация в подвале"><Link to="/catalog">Коллекции</Link><a href="#story">О бренде</a><Link to="/delivery">Доставка</Link><Link to="/returns">Возврат</Link><Link to="/contacts">Контакты и реквизиты</Link><Link to="/offer">Публичная оферта</Link><Link to="/privacy">Политика обработки данных</Link><Link to="/consent">Согласие на обработку данных</Link></nav>
+          <nav className="footer-nav" aria-label="Навигация в подвале"><Link to="/catalog">Коллекции</Link><Link to="/fragrances">Ароматы</Link><a href="#story">О бренде</a><Link to="/delivery">Доставка</Link><Link to="/returns">Возврат</Link><Link to="/contacts">Контакты и реквизиты</Link><Link to="/offer">Публичная оферта</Link><Link to="/privacy">Политика обработки данных</Link><Link to="/consent">Согласие на обработку данных</Link></nav>
         </div>
         <div className="shell footer-bottom"><span>© 2026 ЯРУСКА. Ющенко Валерия Александровна</span><Link to="/privacy">Политика обработки персональных данных</Link><span>Свечи ручной работы</span></div>
       </footer>

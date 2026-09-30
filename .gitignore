@@ -27,3 +27,6 @@ deploy/db-setup.sql
 *.njsproj
 *.sln
 *.sw?
+
+# Uploaded product photos live only on the server
+server/uploads/

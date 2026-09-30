@@ -84,6 +84,7 @@ model Order {
   recipientName                String?
   recipientPhone               String?
   recipientEmail               String?
+  comment                      String?
   cdekOrderUuid                String?         @unique
   cdekTrack                    String?
   cdekStatusCode               String?

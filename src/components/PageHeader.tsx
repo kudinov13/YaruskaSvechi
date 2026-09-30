@@ -38,6 +38,7 @@ export default function PageHeader() {
       <Link className="brand brand-dark" to="/" aria-label="Яруска, на главную"><strong>ЯРУСКА</strong></Link>
       <nav className={menuOpen ? 'nav is-open nav-dark' : 'nav nav-dark'} aria-label="Основная навигация">
         <Link to="/catalog" onClick={() => setMenuOpen(false)}>Коллекции</Link>
+        <Link to="/fragrances" onClick={() => setMenuOpen(false)}>Ароматы</Link>
         <Link to="/#story" onClick={() => setMenuOpen(false)}>О бренде</Link>
         <Link to="/delivery" onClick={() => setMenuOpen(false)}>Доставка</Link>
         <Link to="/contacts" onClick={() => setMenuOpen(false)}>Контакты</Link>

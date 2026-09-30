@@ -18,6 +18,7 @@ type Category = { id: string; slug: string; title: string; order?: number; _coun
 type Order = {
   id: string; total?: number; goodsTotal?: number; deliveryPrice?: number; paymentStatus?: string; status?: string;
   cdekTrack?: string; cdekStatusCode?: string | number; cdekStatus?: string; createdAt: string;
+  comment?: string; recipientName?: string; recipientPhone?: string; recipientEmail?: string;
   user?: { name: string; email: string; phone?: string }
   items: { id: string; title: string; price: number; quantity: number }[]
 }
@@ -177,12 +178,16 @@ export default function AdminPage() {
                         <strong>№ {order.id.slice(-8).toUpperCase()}</strong>
                         <p style={{ fontSize: '.85rem', opacity: .6 }}>{fmtDate(order.createdAt)}</p>
                         {order.user && <p style={{ fontSize: '.85rem', marginTop: '4px' }}>{order.user.name} · {order.user.email}{order.user.phone ? ` · ${order.user.phone}` : ''}</p>}
+                        {(order.recipientName || order.recipientPhone || order.recipientEmail) && (
+                          <p style={{ fontSize: '.85rem', marginTop: '4px', opacity: .8 }}>Получатель: {[order.recipientName, order.recipientPhone, order.recipientEmail].filter(Boolean).join(' · ')}</p>
+                        )}
                       </div>
                       <strong>{fmtPrice(order.total ?? ((order.goodsTotal || 0) + (order.deliveryPrice || 0)))}</strong>
                     </div>
                     <div style={{ fontSize: '.85rem', marginBottom: '12px' }}>
                       {order.items.map((i) => <div key={i.id}>{i.title} × {i.quantity}</div>)}
                     </div>
+                    {order.comment && <p style={{ fontSize: '.85rem', marginBottom: '12px', whiteSpace: 'pre-wrap', borderLeft: '2px solid rgba(91,45,35,.3)', paddingLeft: '10px', opacity: .85 }}>{order.comment}</p>}
                     <dl className="order-status-details">
                       <div><dt>Оплата</dt><dd>{order.paymentStatus || 'Статус пока не получен'}</dd></div>
                       {typeof order.goodsTotal === 'number' && <div><dt>Товары</dt><dd>{fmtPrice(order.goodsTotal)}</dd></div>}

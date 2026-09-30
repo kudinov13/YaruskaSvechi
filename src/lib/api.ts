@@ -38,6 +38,10 @@ export type Order = {
   cdekTrack?: string
   cdekStatusCode?: string | number
   cdekStatus?: string
+  comment?: string
+  recipientName?: string
+  recipientPhone?: string
+  recipientEmail?: string
   createdAt?: string
   items?: { id: string; title: string; price: number; quantity: number }[]
 }
@@ -219,6 +223,7 @@ export const api = {
     cityCode: number
     cityName: string
     deliveryPointCode: string
+    comment?: string
     offerAccepted: true
     dataProcessingConsent: true
   }) => request('/orders', { method: 'POST', body: JSON.stringify(body) }) as Promise<{ order: Order; confirmationUrl: string }>,

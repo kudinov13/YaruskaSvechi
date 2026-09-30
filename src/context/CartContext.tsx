@@ -4,6 +4,7 @@ export type CartItem = {
   id: string
   productId?: string
   variantId?: string
+  fragrance?: string
   title: string
   price: number
   image?: string
@@ -15,6 +16,7 @@ type CartContextValue = {
   add: (item: Omit<CartItem, 'quantity'>, qty?: number) => void
   remove: (id: string) => void
   setQty: (id: string, qty: number) => void
+  setFragrance: (id: string, fragrance: string) => void
   clear: () => void
   count: number
   total: number
@@ -57,13 +59,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, quantity: qty } : i)))
   }
 
+  const setFragrance: CartContextValue['setFragrance'] = (id, fragrance) => {
+    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, fragrance: fragrance || undefined } : i)))
+  }
+
   const clear = useCallback(() => setItems([]), [])
 
   const count = items.reduce((sum, i) => sum + i.quantity, 0)
   const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
 
   return (
-    <CartContext.Provider value={{ items, add, remove, setQty, clear, count, total }}>
+    <CartContext.Provider value={{ items, add, remove, setQty, setFragrance, clear, count, total }}>
       {children}
     </CartContext.Provider>
   )

@@ -13,6 +13,7 @@ import ProfilePage from './pages/ProfilePage'
 import FavoritesPage from './pages/FavoritesPage'
 import AdminPage from './pages/AdminPage'
 import LegalPage from './pages/LegalPage'
+import FragrancesPage from './pages/FragrancesPage'
 import './App.css'
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/catalog" element={<CatalogPage />} />
+              <Route path="/fragrances" element={<FragrancesPage />} />
               <Route path="/product/:id" element={<ProductPage />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/payment-return" element={<PaymentReturnPage />} />

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api, imgUrl } from '../lib/api'
+import { FRAGRANCES } from '../lib/fragrances'
 import { useSeo } from '../lib/seo'
 import { useCart } from '../context/CartContext'
 import { useFavorites } from '../context/FavoritesContext'
@@ -24,6 +25,7 @@ export default function ProductPage() {
   const [qty, setQty] = useState(1)
   const [activeImg, setActiveImg] = useState(0)
   const [selectedVariantId, setSelectedVariantId] = useState('')
+  const [selectedFragrance, setSelectedFragrance] = useState('')
   const [added, setAdded] = useState(false)
 
   useEffect(() => {
@@ -33,6 +35,7 @@ export default function ProductPage() {
       .then(({ item }) => {
         setItem(item)
         setSelectedVariantId(item.variants?.[0]?.id || '')
+        setSelectedFragrance('')
         setActiveImg(0)
         window.scrollTo({ top: 0 })
       })
@@ -83,11 +86,12 @@ export default function ProductPage() {
 
   const handleAdd = () => {
     if (!item) return
-    const cartId = selectedVariant ? `${item.id}::${selectedVariant.id}` : item.id
+    const cartId = `${item.id}::${selectedVariant?.id || ''}::${selectedFragrance || ''}`
     add({
       id: cartId,
       productId: item.id,
       variantId: selectedVariant?.id,
+      fragrance: selectedFragrance || undefined,
       title: selectedVariant ? `${item.title} — ${selectedVariant.name}` : item.title,
       price: item.price,
       image: galleryImages[0],
@@ -154,6 +158,26 @@ export default function ProductPage() {
             </div>
 
             {item.description && <p style={{ lineHeight: 1.7, marginBottom: '24px', opacity: .8 }}>{item.description}</p>}
+
+            <fieldset className="product-variant-picker" style={{ marginBottom: '24px' }}>
+              <legend>Аромат</legend>
+              <select value={selectedFragrance} onChange={(event) => setSelectedFragrance(event.target.value)} aria-label="Выберите аромат" style={{ width: '100%', padding: '10px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}>
+                <option value="">Не выбран — уточним перед отправкой</option>
+                {FRAGRANCES.map((fragrance) => <option key={fragrance.slug} value={fragrance.name}>{fragrance.name}</option>)}
+              </select>
+              <details style={{ marginTop: '12px' }}>
+                <summary style={{ cursor: 'pointer', fontSize: '.9rem', opacity: .7 }}>Все ароматы и их состав</summary>
+                <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  {FRAGRANCES.map((fragrance) => (
+                    <div key={fragrance.slug}>
+                      <strong style={{ fontStyle: 'italic' }}>{fragrance.name}</strong>
+                      <p style={{ fontSize: '.85rem', lineHeight: 1.6, opacity: .7, marginTop: '4px' }}>{fragrance.description.join(' ')}</p>
+                    </div>
+                  ))}
+                </div>
+              </details>
+              <p style={{ fontSize: '.8rem', opacity: .5, marginTop: '10px' }}>Выбранный аромат сохранится в корзине и попадёт в комментарий к заказу. Полный каталог — на странице <Link to="/fragrances" style={{ textDecoration: 'underline' }}>«Ароматы»</Link>.</p>
+            </fieldset>
 
             <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
               <span style={{ padding: '6px 14px', border: '1px solid rgba(91,45,35,.2)', fontSize: '.85rem' }}>{item.stock > 0 ? `В наличии: ${item.stock} шт` : 'Наличие уточняется'}</span>

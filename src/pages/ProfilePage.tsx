@@ -98,6 +98,8 @@ export default function ProfilePage() {
                     ))}
                   </div>
 
+                  {order.comment && <p style={{ fontSize: '.85rem', marginBottom: '16px', whiteSpace: 'pre-wrap', opacity: .8, borderLeft: '2px solid rgba(91,45,35,.25)', paddingLeft: '10px' }}>{order.comment}</p>}
+
                   <dl className="order-status-details">
                     <div><dt>Оплата</dt><dd>{PAYMENT_LABELS[paymentStatus] || order.paymentStatus || 'Статус пока не получен'}</dd></div>
                     {typeof order.goodsTotal === 'number' && <div><dt>Товары</dt><dd>{fmtPrice(order.goodsTotal)}</dd></div>}
