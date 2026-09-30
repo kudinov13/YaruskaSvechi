@@ -4,6 +4,7 @@ import { prisma } from '../db.js'
 import { authRequired } from '../middleware/auth.js'
 import { CheckoutError, quoteCartDelivery } from '../services/checkout.js'
 import { createYooKassaPayment } from '../services/yookassa.js'
+import { notifyNewOrder } from '../services/telegram.js'
 
 const router = Router()
 router.use(authRequired)
@@ -102,6 +103,7 @@ router.post('/', async (req, res, next) => {
       include: { items: true },
     })
     res.status(201).json({ order: updatedOrder, confirmationUrl: payment.confirmation.confirmation_url })
+    notifyNewOrder(updatedOrder)
   } catch (error) {
     checkoutError(error, res, next)
   }

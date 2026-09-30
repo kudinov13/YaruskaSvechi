@@ -8,6 +8,7 @@ import {
   getCdekOrder,
 } from '../services/cdek.js'
 import { prepareStoredShipment } from '../services/checkout.js'
+import { notifyOrderPaid, notifyOrderCanceled, notifyOrderShipped } from '../services/telegram.js'
 
 const router = Router()
 
@@ -32,7 +33,8 @@ async function handleYooKassaNotification(notification) {
     || amountInKopecks(payment.amount?.value) !== order.total * 100) return
 
   if (payment.status === 'succeeded') {
-    if (order.paymentStatus !== 'SUCCEEDED') {
+    const wasUnpaid = order.paymentStatus !== 'SUCCEEDED'
+    if (wasUnpaid) {
       await prisma.order.updateMany({
         where: { id: order.id, paymentId: paymentId, paymentStatus: { not: 'CANCELED' } },
         data: { paymentStatus: 'SUCCEEDED', status: 'PAID' },
@@ -40,6 +42,7 @@ async function handleYooKassaNotification(notification) {
     }
     const paidOrder = await prisma.order.findUnique({ where: { id: order.id }, include: { items: true } })
     if (paidOrder?.paymentStatus !== 'SUCCEEDED') return
+    if (wasUnpaid) notifyOrderPaid(paidOrder)
     if (paidOrder.cdekOrderUuid) return
 
     await ensureCdekStatusWebhook()
@@ -53,10 +56,15 @@ async function handleYooKassaNotification(notification) {
   }
 
   if (payment.status === 'canceled' && order.paymentStatus !== 'SUCCEEDED') {
+    const wasActive = order.paymentStatus !== 'CANCELED'
     await prisma.order.updateMany({
       where: { id: order.id, paymentId: paymentId, paymentStatus: { not: 'SUCCEEDED' } },
       data: { paymentStatus: 'CANCELED', status: 'CANCELLED' },
     })
+    if (wasActive) {
+      const canceledOrder = await prisma.order.findUnique({ where: { id: order.id }, include: { items: true } })
+      if (canceledOrder) notifyOrderCanceled(canceledOrder)
+    }
   }
 }
 
@@ -146,6 +154,9 @@ async function handleCdekNotification(body) {
     where: { id: order.id, paymentStatus: 'SUCCEEDED' },
     data,
   })
+  if (data.cdekTrack && !order.cdekTrack) {
+    notifyOrderShipped({ ...order, cdekTrack: data.cdekTrack, cdekStatus: data.cdekStatus })
+  }
 }
 
 export async function syncPendingYooKassaPayments() {
