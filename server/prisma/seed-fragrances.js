@@ -10,14 +10,17 @@ const data = JSON.parse(fs.readFileSync(path.join(__dirname, 'fragrances.json'),
 
 const prisma = new PrismaClient()
 try {
-  for (const [index, item] of data.entries()) {
-    await prisma.fragrance.upsert({
-      where: { slug: item.slug },
-      update: { name: item.name, description: item.description, order: index },
-      create: { slug: item.slug, name: item.name, description: item.description, order: index },
-    })
-    console.log(`ok: ${item.name}`)
-  }
+  // Только добавляем недостающие — правки из админки не затираем
+  const { count } = await prisma.fragrance.createMany({
+    data: data.map((item, index) => ({
+      slug: item.slug,
+      name: item.name,
+      description: item.description,
+      order: index,
+    })),
+    skipDuplicates: true,
+  })
+  console.log(`seeded: ${count} new fragrances (${data.length} in catalog)`)
 } finally {
   await prisma.$disconnect()
 }

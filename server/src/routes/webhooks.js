@@ -33,16 +33,13 @@ async function handleYooKassaNotification(notification) {
     || amountInKopecks(payment.amount?.value) !== order.total * 100) return
 
   if (payment.status === 'succeeded') {
-    const wasUnpaid = order.paymentStatus !== 'SUCCEEDED'
-    if (wasUnpaid) {
-      await prisma.order.updateMany({
-        where: { id: order.id, paymentId: paymentId, paymentStatus: { not: 'CANCELED' } },
-        data: { paymentStatus: 'SUCCEEDED', status: 'PAID' },
-      })
-    }
+    const transitioned = await prisma.order.updateMany({
+      where: { id: order.id, paymentId: paymentId, paymentStatus: { notIn: ['SUCCEEDED', 'CANCELED'] } },
+      data: { paymentStatus: 'SUCCEEDED', status: 'PAID' },
+    })
     const paidOrder = await prisma.order.findUnique({ where: { id: order.id }, include: { items: true } })
     if (paidOrder?.paymentStatus !== 'SUCCEEDED') return
-    if (wasUnpaid) notifyOrderPaid(paidOrder)
+    if (transitioned.count === 1) notifyOrderPaid(paidOrder)
     if (paidOrder.cdekOrderUuid) return
 
     await ensureCdekStatusWebhook()
@@ -56,12 +53,11 @@ async function handleYooKassaNotification(notification) {
   }
 
   if (payment.status === 'canceled' && order.paymentStatus !== 'SUCCEEDED') {
-    const wasActive = order.paymentStatus !== 'CANCELED'
-    await prisma.order.updateMany({
-      where: { id: order.id, paymentId: paymentId, paymentStatus: { not: 'SUCCEEDED' } },
+    const transitioned = await prisma.order.updateMany({
+      where: { id: order.id, paymentId: paymentId, paymentStatus: { notIn: ['SUCCEEDED', 'CANCELED'] } },
       data: { paymentStatus: 'CANCELED', status: 'CANCELLED' },
     })
-    if (wasActive) {
+    if (transitioned.count === 1) {
       const canceledOrder = await prisma.order.findUnique({ where: { id: order.id }, include: { items: true } })
       if (canceledOrder) notifyOrderCanceled(canceledOrder)
     }

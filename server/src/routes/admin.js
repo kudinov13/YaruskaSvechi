@@ -166,6 +166,8 @@ router.get('/fragrances', async (_req, res, next) => {
 router.post('/fragrances', async (req, res, next) => {
   try {
     const data = fragranceSchema.parse(req.body)
+    const nameTaken = await prisma.fragrance.findUnique({ where: { name: data.name } })
+    if (nameTaken) return res.status(400).json({ error: 'Аромат с таким названием уже существует' })
     let slug = slugify(data.name)
     const exists = await prisma.fragrance.findUnique({ where: { slug } })
     if (exists) slug = `${slug}-${Date.now().toString(36)}`
@@ -179,6 +181,10 @@ router.post('/fragrances', async (req, res, next) => {
 router.put('/fragrances/:id', async (req, res, next) => {
   try {
     const data = fragranceSchema.partial().parse(req.body)
+    if (data.name !== undefined) {
+      const nameTaken = await prisma.fragrance.findFirst({ where: { name: data.name, NOT: { id: req.params.id } } })
+      if (nameTaken) return res.status(400).json({ error: 'Аромат с таким названием уже существует' })
+    }
     const item = await prisma.fragrance.update({ where: { id: req.params.id }, data })
     res.json({ item })
   } catch (e) { next(e) }

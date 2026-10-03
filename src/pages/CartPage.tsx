@@ -145,7 +145,7 @@ export default function CartPage() {
       const comment = [
         ...(fragranceLines.length ? [`Ароматы: ${fragranceLines.join('; ')}`] : []),
         orderComment.trim(),
-      ].filter(Boolean).join('\n')
+      ].filter(Boolean).join('\n').slice(0, 1900)
       const { order, confirmationUrl } = await api.createOrder({
         items: JSON.parse(cartSignature),
         recipientName: recipientName.trim(),
@@ -281,7 +281,7 @@ export default function CartPage() {
                   value={orderComment}
                   onChange={(event) => setOrderComment(event.target.value)}
                   rows={3}
-                  maxLength={2000}
+                  maxLength={1500}
                   placeholder="Например: свечу «Самовар» — с ароматом «Вечер у камина», остальные — «Таёжные дали»"
                   style={{ display: 'block', width: '100%', marginTop: '4px', padding: '10px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit', resize: 'vertical' }}
                 />

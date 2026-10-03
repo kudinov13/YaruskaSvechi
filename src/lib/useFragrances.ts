@@ -23,6 +23,8 @@ export function useFragrances(): Fragrance[] {
           order: item.order,
           active: item.active,
         }))
+        // Пустой список с API не должен блокировать оформление — остаёмся на запасном каталоге
+        if (list.length === 0) return
         cache = list
         if (active) setItems(list)
       })
