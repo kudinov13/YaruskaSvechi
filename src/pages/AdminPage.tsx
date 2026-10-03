@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api, imgUrl } from '../lib/api'
+import type { Fragrance } from '../lib/fragrances'
+import { invalidateFragrancesCache } from '../lib/useFragrances'
 import { useAuth } from '../context/AuthContext'
 import PageHeader from '../components/PageHeader'
 import { useSeo } from '../lib/seo'
@@ -27,9 +29,10 @@ export default function AdminPage() {
   useSeo({ title: 'Админ-панель', noindex: true })
   const { user, isAdmin, loading: authLoading } = useAuth()
   const navigate = useNavigate()
-  const [tab, setTab] = useState<'candles' | 'popular' | 'orders' | 'categories'>('candles')
+  const [tab, setTab] = useState<'candles' | 'popular' | 'orders' | 'categories' | 'fragrances'>('candles')
   const [candles, setCandles] = useState<Candle[]>([])
   const [categories, setCategories] = useState<Category[]>([])
+  const [fragrances, setFragrances] = useState<Fragrance[]>([])
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<Candle | null>(null)
@@ -40,8 +43,8 @@ export default function AdminPage() {
   }, [user, isAdmin, authLoading, navigate])
 
   const load = () => {
-    Promise.all([api.adminCandles(), api.adminCategories(), api.adminOrders()])
-      .then(([c, cat, o]) => { setCandles(c.items); setCategories(cat.categories); setOrders(o.orders) })
+    Promise.all([api.adminCandles(), api.adminCategories(), api.adminOrders(), api.adminFragrances()])
+      .then(([c, cat, o, f]) => { setCandles(c.items); setCategories(cat.categories); setOrders(o.orders); setFragrances(f.items) })
       .catch(() => {})
       .finally(() => setLoading(false))
   }
@@ -94,6 +97,7 @@ export default function AdminPage() {
           <button onClick={() => setTab('popular')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'popular' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'popular' ? 600 : 400 }}>Популярные</button>
           <button onClick={() => setTab('orders')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'orders' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'orders' ? 600 : 400 }}>Заказы</button>
           <button onClick={() => setTab('categories')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'categories' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'categories' ? 600 : 400 }}>Категории</button>
+          <button onClick={() => setTab('fragrances')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'fragrances' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'fragrances' ? 600 : 400 }}>Ароматы</button>
         </div>
 
         {tab === 'candles' && (
@@ -204,6 +208,7 @@ export default function AdminPage() {
         )}
 
         {tab === 'categories' && <CategoriesPanel categories={categories} onChanged={load} loading={loading} />}
+        {tab === 'fragrances' && <FragrancesPanel fragrances={fragrances} onChanged={load} loading={loading} />}
       </div>
     </main>
     </>
@@ -311,6 +316,122 @@ function CategoriesPanel({ categories, onChanged, loading }: {
             </div>
           ))}
           {categories.length === 0 && <p style={{ opacity: .6 }}>Категорий пока нет</p>}
+        </div>
+      )}
+    </section>
+  )
+}
+
+function FragrancesPanel({ fragrances, onChanged, loading }: {
+  fragrances: Fragrance[]
+  onChanged: () => void
+  loading: boolean
+}) {
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [order, setOrder] = useState('0')
+  const [active, setActive] = useState(true)
+  const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  const reset = () => { setEditingId(null); setName(''); setDescription(''); setOrder('0'); setActive(true); setError('') }
+
+  const startEdit = (fragrance: Fragrance) => {
+    setEditingId(fragrance.id || null)
+    setName(fragrance.name)
+    setDescription((fragrance.description || []).join('\n\n'))
+    setOrder(String(fragrance.order ?? 0))
+    setActive(fragrance.active !== false)
+    setError('')
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    if (name.trim().length < 2) { setError('Введите название аромата (минимум 2 символа)'); return }
+    const payload = {
+      name: name.trim(),
+      description: description.split(/\n+/).map((line) => line.trim()).filter(Boolean),
+      order: parseInt(order) || 0,
+      active,
+    }
+    setSaving(true)
+    try {
+      if (editingId) await api.adminUpdateFragrance(editingId, payload)
+      else await api.adminCreateFragrance(payload)
+      reset()
+      invalidateFragrancesCache()
+      onChanged()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка сохранения')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleToggle = async (fragrance: Fragrance) => {
+    if (!fragrance.id) return
+    setError('')
+    try {
+      await api.adminUpdateFragrance(fragrance.id, { active: fragrance.active === false })
+      invalidateFragrancesCache()
+      onChanged()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка сохранения')
+    }
+  }
+
+  const handleDelete = async (fragrance: Fragrance) => {
+    if (!fragrance.id || !confirm(`Удалить аромат «${fragrance.name}»?`)) return
+    setError('')
+    try {
+      await api.adminDeleteFragrance(fragrance.id)
+      if (editingId === fragrance.id) reset()
+      invalidateFragrancesCache()
+      onChanged()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка удаления')
+    }
+  }
+
+  return (
+    <section>
+      <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.4rem', marginBottom: '8px' }}>Ароматы ({fragrances.length})</h3>
+      <p style={{ opacity: .6, marginBottom: '20px', fontSize: '.9rem' }}>Ароматы видны на странице «Ароматы», в выборе на карточке товара и в корзине. Скрытый аромат не предлагается покупателям.</p>
+
+      <form onSubmit={handleSubmit} style={{ border: '1px solid rgba(91,45,35,.2)', padding: '16px', marginBottom: '20px', background: 'rgba(255,255,255,.6)' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+          <label style={{ flex: '1 1 220px' }}>Название<input value={name} onChange={(e) => setName(e.target.value)} required style={inputStyle}/></label>
+          <label style={{ flex: '0 0 120px' }}>Порядок<input type="number" value={order} onChange={(e) => setOrder(e.target.value)} style={inputStyle}/></label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', minHeight: '42px' }}><input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)}/> Активен</label>
+        </div>
+        <label style={{ display: 'block', marginTop: '12px' }}>Описание (каждый абзац с новой строки)<textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} style={{ ...inputStyle, resize: 'vertical' }}/></label>
+        <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+          <button type="submit" disabled={saving} style={{ minHeight: '42px', padding: '10px 20px', cursor: 'pointer', background: '#5b2d23', color: '#eee8df', border: '1px solid #5b2d23', fontFamily: 'inherit' }}>{editingId ? 'Сохранить' : '+ Добавить'}</button>
+          {editingId && <button type="button" onClick={reset} style={{ minHeight: '42px', padding: '10px 16px', cursor: 'pointer', fontFamily: 'inherit' }}>Отмена</button>}
+        </div>
+      </form>
+
+      {error && <p style={{ color: '#8b2a2a', fontSize: '.9rem', marginBottom: '16px' }}>{error}</p>}
+
+      {loading ? <p>Загрузка…</p> : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {fragrances.map((fragrance) => (
+            <div key={fragrance.id || fragrance.slug} style={{ border: '1px solid rgba(91,45,35,.15)', padding: '14px 16px', background: 'rgba(255,255,255,.4)' }}>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <strong style={{ flex: '1 1 200px', fontStyle: 'italic' }}>{fragrance.name}</strong>
+                <span style={{ fontSize: '.8rem', opacity: .5 }}>/{fragrance.slug}</span>
+                <span style={{ fontSize: '.85rem', opacity: .6 }}>Порядок: {fragrance.order ?? 0}</span>
+                {fragrance.active === false && <span style={{ fontSize: '.8rem', color: '#8b2a2a' }}>скрыт</span>}
+                <button onClick={() => handleToggle(fragrance)} style={{ minHeight: '36px', padding: '6px 14px', cursor: 'pointer', fontSize: '.8rem', fontFamily: 'inherit' }}>{fragrance.active === false ? 'Показать' : 'Скрыть'}</button>
+                <button onClick={() => startEdit(fragrance)} style={{ minHeight: '36px', padding: '6px 14px', cursor: 'pointer', fontSize: '.8rem', fontFamily: 'inherit' }}>Изменить</button>
+                <button onClick={() => handleDelete(fragrance)} style={{ minHeight: '36px', padding: '6px 14px', cursor: 'pointer', fontSize: '.8rem', color: '#8b2a2a', fontFamily: 'inherit' }}>Удалить</button>
+              </div>
+              {(fragrance.description || []).length > 0 && <p style={{ fontSize: '.85rem', opacity: .65, marginTop: '8px', lineHeight: 1.5 }}>{fragrance.description.join(' ')}</p>}
+            </div>
+          ))}
+          {fragrances.length === 0 && <p style={{ opacity: .6 }}>Ароматов пока нет</p>}
         </div>
       )}
     </section>

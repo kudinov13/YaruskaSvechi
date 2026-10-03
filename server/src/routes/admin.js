@@ -149,6 +149,48 @@ router.delete('/categories/:id', async (req, res, next) => {
   } catch (e) { next(e) }
 })
 
+const fragranceSchema = z.object({
+  name: z.string().trim().min(2).max(100),
+  description: z.array(z.string().trim().max(2000)).max(20).optional(),
+  order: z.number().int().optional(),
+  active: z.boolean().optional(),
+})
+
+router.get('/fragrances', async (_req, res, next) => {
+  try {
+    const items = await prisma.fragrance.findMany({ orderBy: [{ order: 'asc' }, { name: 'asc' }] })
+    res.json({ items })
+  } catch (e) { next(e) }
+})
+
+router.post('/fragrances', async (req, res, next) => {
+  try {
+    const data = fragranceSchema.parse(req.body)
+    let slug = slugify(data.name)
+    const exists = await prisma.fragrance.findUnique({ where: { slug } })
+    if (exists) slug = `${slug}-${Date.now().toString(36)}`
+    const item = await prisma.fragrance.create({
+      data: { slug, name: data.name, description: data.description || [], order: data.order || 0, active: data.active ?? true },
+    })
+    res.json({ item })
+  } catch (e) { next(e) }
+})
+
+router.put('/fragrances/:id', async (req, res, next) => {
+  try {
+    const data = fragranceSchema.partial().parse(req.body)
+    const item = await prisma.fragrance.update({ where: { id: req.params.id }, data })
+    res.json({ item })
+  } catch (e) { next(e) }
+})
+
+router.delete('/fragrances/:id', async (req, res, next) => {
+  try {
+    await prisma.fragrance.delete({ where: { id: req.params.id } })
+    res.json({ ok: true })
+  } catch (e) { next(e) }
+})
+
 router.get('/orders', async (_req, res, next) => {
   try {
     const orders = await prisma.order.findMany({ include: { items: true, user: { select: { id: true, name: true, email: true, phone: true } } }, orderBy: { createdAt: 'desc' } })

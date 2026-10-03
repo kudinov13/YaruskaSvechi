@@ -1,3 +1,5 @@
+import { FRAGRANCES, type Fragrance } from './fragrances'
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:4000/api'
 
 // Fallback-данные для работы без бэкенда (демо-режим)
@@ -106,6 +108,17 @@ function saveDemoCandles(items: typeof FALLBACK_PRODUCTS) {
   localStorage.setItem('demo_candles_v2', JSON.stringify(items))
 }
 
+// Демо-ароматы (localStorage, seed из FRAGRANCES)
+function getDemoFragrances(): Fragrance[] {
+  const stored = localStorage.getItem('demo_fragrances')
+  if (stored) return JSON.parse(stored)
+  return FRAGRANCES.map((item, index) => ({ ...item, id: 'f' + (index + 1), order: index, active: true }))
+}
+
+function saveDemoFragrances(items: Fragrance[]) {
+  localStorage.setItem('demo_fragrances', JSON.stringify(items))
+}
+
 export const api = {
   // Auth
   register: (body: { email: string; name: string; password: string; phone?: string; dataProcessingConsent: boolean }) =>
@@ -182,6 +195,10 @@ export const api = {
       if (!item) throw new Error('Товар не найден')
       return { item }
     },
+  ),
+  fragrances: () => withFallback(
+    () => request('/products/fragrances') as Promise<{ items: Fragrance[] }>,
+    () => ({ items: getDemoFragrances().filter((item) => item.active !== false) }),
   ),
 
   // Orders
@@ -287,6 +304,39 @@ export const api = {
     () => request('/admin/orders'),
     () => ({ orders: JSON.parse(localStorage.getItem('demo_orders') || '[]') }),
   ),
+  adminFragrances: () => withFallback(
+    () => request('/admin/fragrances') as Promise<{ items: Fragrance[] }>,
+    () => ({ items: getDemoFragrances() }),
+  ),
+  adminCreateFragrance: (body: { name: string; description?: string[]; order?: number; active?: boolean }) =>
+    withFallback(
+      () => request('/admin/fragrances', { method: 'POST', body: JSON.stringify(body) }),
+      () => {
+        const items = getDemoFragrances()
+        const item: Fragrance = { ...body, id: 'df' + Date.now(), slug: body.name.toLowerCase(), description: body.description || [], active: body.active ?? true }
+        saveDemoFragrances([...items, item])
+        return { item }
+      },
+    ),
+  adminUpdateFragrance: (id: string, body: { name?: string; description?: string[]; order?: number; active?: boolean }) =>
+    withFallback(
+      () => request(`/admin/fragrances/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+      () => {
+        const items = getDemoFragrances()
+        const idx = items.findIndex((item) => item.id === id)
+        if (idx >= 0) items[idx] = { ...items[idx], ...body }
+        saveDemoFragrances(items)
+        return { item: items[idx] }
+      },
+    ),
+  adminDeleteFragrance: (id: string) =>
+    withFallback(
+      () => request(`/admin/fragrances/${id}`, { method: 'DELETE' }),
+      () => {
+        saveDemoFragrances(getDemoFragrances().filter((item) => item.id !== id))
+        return { ok: true }
+      },
+    ),
   adminCategories: () => withFallback(
     () => request('/admin/categories'),
     () => ({

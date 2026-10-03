@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api, imgUrl } from '../lib/api'
-import { FRAGRANCES } from '../lib/fragrances'
+import { useFragrances } from '../lib/useFragrances'
 import { useSeo } from '../lib/seo'
 import { useCart } from '../context/CartContext'
 import { useFavorites } from '../context/FavoritesContext'
@@ -26,7 +26,9 @@ export default function ProductPage() {
   const [activeImg, setActiveImg] = useState(0)
   const [selectedVariantId, setSelectedVariantId] = useState('')
   const [selectedFragrance, setSelectedFragrance] = useState('')
+  const [fragranceError, setFragranceError] = useState(false)
   const [added, setAdded] = useState(false)
+  const fragrances = useFragrances()
 
   useEffect(() => {
     if (!id) return
@@ -86,6 +88,11 @@ export default function ProductPage() {
 
   const handleAdd = () => {
     if (!item) return
+    if (!selectedFragrance) {
+      setFragranceError(true)
+      return
+    }
+    setFragranceError(false)
     const cartId = `${item.id}::${selectedVariant?.id || ''}::${selectedFragrance || ''}`
     add({
       id: cartId,
@@ -160,15 +167,25 @@ export default function ProductPage() {
             {item.description && <p style={{ lineHeight: 1.7, marginBottom: '24px', opacity: .8 }}>{item.description}</p>}
 
             <fieldset className="product-variant-picker" style={{ marginBottom: '24px' }}>
-              <legend>Аромат</legend>
-              <select value={selectedFragrance} onChange={(event) => setSelectedFragrance(event.target.value)} aria-label="Выберите аромат" style={{ width: '100%', padding: '10px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}>
-                <option value="">Не выбран — уточним перед отправкой</option>
-                {FRAGRANCES.map((fragrance) => <option key={fragrance.slug} value={fragrance.name}>{fragrance.name}</option>)}
-              </select>
+              <legend>Аромат <span aria-hidden="true" style={{ color: '#8b2a2a' }}>*</span></legend>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <select
+                  value={selectedFragrance}
+                  onChange={(event) => { setSelectedFragrance(event.target.value); setFragranceError(false) }}
+                  aria-label="Выберите аромат"
+                  aria-required="true"
+                  style={{ flex: '1 1 260px', padding: '10px', border: fragranceError ? '1px solid #8b2a2a' : '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}
+                >
+                  <option value="">Выберите аромат</option>
+                  {fragrances.map((fragrance) => <option key={fragrance.slug} value={fragrance.name}>{fragrance.name}</option>)}
+                </select>
+                <Link to="/fragrances" target="_blank" rel="noopener noreferrer" className="arrow-link"><span>Все ароматы и состав</span></Link>
+              </div>
+              {fragranceError && <p role="alert" style={{ color: '#8b2a2a', fontSize: '.85rem', marginTop: '8px' }}>Выберите аромат — без него свечу нельзя добавить в корзину.</p>}
               <details style={{ marginTop: '12px' }}>
-                <summary style={{ cursor: 'pointer', fontSize: '.9rem', opacity: .7 }}>Все ароматы и их состав</summary>
+                <summary style={{ cursor: 'pointer', fontSize: '.9rem', opacity: .7 }}>Описания ароматов</summary>
                 <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  {FRAGRANCES.map((fragrance) => (
+                  {fragrances.map((fragrance) => (
                     <div key={fragrance.slug}>
                       <strong style={{ fontStyle: 'italic' }}>{fragrance.name}</strong>
                       <p style={{ fontSize: '.85rem', lineHeight: 1.6, opacity: .7, marginTop: '4px' }}>{fragrance.description.join(' ')}</p>
@@ -176,7 +193,6 @@ export default function ProductPage() {
                   ))}
                 </div>
               </details>
-              <p style={{ fontSize: '.8rem', opacity: .5, marginTop: '10px' }}>Выбранный аромат сохранится в корзине и попадёт в комментарий к заказу. Полный каталог — на странице <Link to="/fragrances" style={{ textDecoration: 'underline' }}>«Ароматы»</Link>.</p>
             </fieldset>
 
             <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>

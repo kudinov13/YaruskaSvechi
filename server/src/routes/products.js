@@ -30,6 +30,18 @@ router.get('/categories', async (_req, res, next) => {
   }
 })
 
+router.get('/fragrances', async (_req, res, next) => {
+  try {
+    const items = await prisma.fragrance.findMany({
+      where: { active: true },
+      orderBy: [{ order: 'asc' }, { name: 'asc' }],
+    })
+    res.json({ items })
+  } catch (e) {
+    next(e)
+  }
+})
+
 router.get('/:id', async (req, res, next) => {
   try {
     const item = await prisma.candle.findFirst({

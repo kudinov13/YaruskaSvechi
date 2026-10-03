@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { api, imgUrl, type DeliveryCity, type DeliveryQuote, type PickupPoint } from '../lib/api'
-import { FRAGRANCES } from '../lib/fragrances'
+import { useFragrances } from '../lib/useFragrances'
 import PageHeader from '../components/PageHeader'
 import { useSeo } from '../lib/seo'
 import '../App.css'
@@ -24,6 +24,8 @@ export default function CartPage() {
   const [recipientPhone, setRecipientPhone] = useState('')
   const [recipientEmail, setRecipientEmail] = useState('')
   const [orderComment, setOrderComment] = useState('')
+  const fragrances = useFragrances()
+  const missingFragrance = items.some((item) => !item.fragrance)
   const [cityQuery, setCityQuery] = useState('')
   const [cities, setCities] = useState<DeliveryCity[]>([])
   const [selectedCity, setSelectedCity] = useState<DeliveryCity | null>(null)
@@ -113,6 +115,10 @@ export default function CartPage() {
       navigate('/login?redirect=/cart')
       return
     }
+    if (missingFragrance) {
+      setOrderError('Выберите аромат для каждой свечи в заказе')
+      return
+    }
     if (!selectedCity || !deliveryPointCode || !quote || quoteLoading) {
       setOrderError('Выберите город и пункт выдачи и дождитесь расчёта доставки')
       return
@@ -197,10 +203,10 @@ export default function CartPage() {
                 <div>
                   <Link to={`/product/${item.productId || item.id}`} style={{ fontWeight: 600, textDecoration: 'none', color: 'inherit' }}>{item.title}</Link>
                   <p style={{ fontSize: '.85rem', opacity: .6, marginTop: '4px' }}>{fmtPrice(item.price)} / шт</p>
-                  <label style={{ display: 'block', fontSize: '.8rem', opacity: .7, marginTop: '8px' }}>Аромат
-                    <select value={item.fragrance || ''} onChange={(event) => setFragrance(item.id, event.target.value)} style={{ display: 'block', width: '100%', marginTop: '4px', padding: '6px 8px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit', fontSize: '.85rem' }}>
-                      <option value="">Не выбран</option>
-                      {FRAGRANCES.map((fragrance) => <option key={fragrance.slug} value={fragrance.name}>{fragrance.name}</option>)}
+                  <label style={{ display: 'block', fontSize: '.8rem', opacity: .7, marginTop: '8px' }}>Аромат *
+                    <select value={item.fragrance || ''} onChange={(event) => { setFragrance(item.id, event.target.value); setOrderError('') }} required style={{ display: 'block', width: '100%', marginTop: '4px', padding: '6px 8px', border: item.fragrance ? '1px solid rgba(91,45,35,.2)' : '1px solid #8b2a2a', background: 'transparent', fontFamily: 'inherit', fontSize: '.85rem' }}>
+                      <option value="">Выберите аромат</option>
+                      {fragrances.map((fragrance) => <option key={fragrance.slug} value={fragrance.name}>{fragrance.name}</option>)}
                     </select>
                   </label>
                 </div>
@@ -280,7 +286,7 @@ export default function CartPage() {
                   style={{ display: 'block', width: '100%', marginTop: '4px', padding: '10px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit', resize: 'vertical' }}
                 />
               </label>
-              <p className="checkout-help">Выбранные у товаров ароматы добавятся в комментарий автоматически. Описания композиций — на странице <Link to="/fragrances" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>«Ароматы»</Link>. Если аромат не указан, мы свяжемся с вами перед отправкой.</p>
+              <p className="checkout-help">Выбранные у товаров ароматы добавятся в комментарий автоматически. Описания композиций — на странице <Link to="/fragrances" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>«Ароматы»</Link>. Аромат обязателен для каждой свечи.</p>
             </section>
 
             <section className="checkout-totals" aria-label="Состав и стоимость заказа">
@@ -308,6 +314,7 @@ export default function CartPage() {
               <button type="submit" disabled={ordering || !quote || quoteLoading} className="arrow-link checkout-submit">
                 <span>{ordering ? 'Переход к оплате…' : 'Перейти к оплате'}</span>
               </button>
+              {missingFragrance && <p className="checkout-help" style={{ color: '#8b2a2a' }}>У некоторых товаров не выбран аромат — укажите его в списке выше.</p>}
             </div>
             <p className="checkout-help">Заказ останется в корзине, пока платёж не будет подтверждён.</p>
           </form>
