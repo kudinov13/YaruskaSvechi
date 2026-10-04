@@ -692,3 +692,6 @@ a:hover .placeholder-frame, .product-card:hover .placeholder-frame { background:
   .modal-overlay { align-items: flex-end; padding: 0; }
   .fragrance-sheet { max-width: none; max-height: 85vh; border: 0; border-top: 1px solid rgba(91,45,35,.25); padding: 22px 18px 26px; border-radius: 14px 14px 0 0; }
 }
+
+.admin-tabs { scrollbar-width: none; }
+.admin-tabs::-webkit-scrollbar { display: none; }

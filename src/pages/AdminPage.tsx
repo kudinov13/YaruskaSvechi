@@ -92,12 +92,12 @@ export default function AdminPage() {
           </div>
         </header>
 
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '32px', borderBottom: '1px solid rgba(91,45,35,.15)' }}>
-          <button onClick={() => setTab('candles')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'candles' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'candles' ? 600 : 400 }}>Товары</button>
-          <button onClick={() => setTab('popular')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'popular' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'popular' ? 600 : 400 }}>Популярные</button>
-          <button onClick={() => setTab('orders')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'orders' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'orders' ? 600 : 400 }}>Заказы</button>
-          <button onClick={() => setTab('categories')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'categories' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'categories' ? 600 : 400 }}>Категории</button>
-          <button onClick={() => setTab('fragrances')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'fragrances' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'fragrances' ? 600 : 400 }}>Ароматы</button>
+        <div className="admin-tabs" style={{ display: 'flex', gap: '8px', marginBottom: '32px', borderBottom: '1px solid rgba(91,45,35,.15)', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <button onClick={() => setTab('candles')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'candles' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'candles' ? 600 : 400, flexShrink: 0 }}>Товары</button>
+          <button onClick={() => setTab('popular')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'popular' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'popular' ? 600 : 400, flexShrink: 0 }}>Популярные</button>
+          <button onClick={() => setTab('orders')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'orders' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'orders' ? 600 : 400, flexShrink: 0 }}>Заказы</button>
+          <button onClick={() => setTab('categories')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'categories' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'categories' ? 600 : 400, flexShrink: 0 }}>Категории</button>
+          <button onClick={() => setTab('fragrances')} style={{ padding: '12px 20px', background: 'none', border: 'none', borderBottom: tab === 'fragrances' ? '2px solid #5b2d23' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', fontWeight: tab === 'fragrances' ? 600 : 400, flexShrink: 0 }}>Ароматы</button>
         </div>
 
         {tab === 'candles' && (
