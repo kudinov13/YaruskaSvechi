@@ -200,8 +200,8 @@ export default function CartPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px' }}>
             {items.map((item) => (
-              <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '80px minmax(0,1fr) auto 96px', gap: '16px', alignItems: 'center', padding: '16px', border: '1px solid rgba(91,45,35,.15)', background: 'rgba(255,255,255,.4)' }} className="cart-row">
-                <Link to={`/product/${item.productId || item.id}`} className="photo-placeholder tone-ruby" style={{ width: '80px', height: '80px', display: 'block', position: 'relative', overflow: 'hidden' }}>
+              <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '80px minmax(0,1fr) auto', gap: '16px', alignItems: 'center', padding: '16px', border: '1px solid rgba(91,45,35,.15)', background: 'rgba(255,255,255,.4)' }} className="cart-row">
+                <Link to={`/product/${item.productId || item.id}`} className="photo-placeholder tone-ruby" style={{ width: '80px', height: '80px', display: 'block', position: 'relative', overflow: 'hidden', alignSelf: 'start' }}>
                   {item.image ? <img src={imgSrc(item.image)} alt={item.title} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} /> : <div className="placeholder-frame"><small>Фото</small></div>}
                 </Link>
                 <div style={{ minWidth: 0 }}>
@@ -216,14 +216,16 @@ export default function CartPage() {
                     {fragrances.map((fragrance) => <option key={fragrance.slug} value={fragrance.name}>{fragrance.name}</option>)}
                   </select>
                 </div>
-                <div className="cart-qty">
-                  <button type="button" onClick={() => setQty(item.id, item.quantity - 1)} aria-label={`Уменьшить количество ${item.title}`}>−</button>
-                  <span>{item.quantity}</span>
-                  <button type="button" onClick={() => setQty(item.id, item.quantity + 1)} aria-label={`Увеличить количество ${item.title}`}>+</button>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px', minWidth: 0 }}>
-                  <strong style={{ whiteSpace: 'nowrap' }}>{fmtPrice(item.price * item.quantity)}</strong>
-                  <button type="button" onClick={() => remove(item.id)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '.8rem', opacity: .5, padding: 0 }}>Удалить</button>
+                <div className="cart-controls" style={{ display: 'flex', alignItems: 'center', gap: '20px', alignSelf: 'end' }}>
+                  <div className="cart-qty">
+                    <button type="button" onClick={() => setQty(item.id, item.quantity - 1)} aria-label={`Уменьшить количество ${item.title}`}>−</button>
+                    <span>{item.quantity}</span>
+                    <button type="button" onClick={() => setQty(item.id, item.quantity + 1)} aria-label={`Увеличить количество ${item.title}`}>+</button>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px', minWidth: '88px' }}>
+                    <strong style={{ whiteSpace: 'nowrap' }}>{fmtPrice(item.price * item.quantity)}</strong>
+                    <button type="button" onClick={() => remove(item.id)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '.8rem', opacity: .5, padding: 0 }}>Удалить</button>
+                  </div>
                 </div>
               </div>
             ))}

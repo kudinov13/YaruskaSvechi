@@ -492,14 +492,12 @@ a:hover .placeholder-frame, .product-card:hover .placeholder-frame { background:
   .cart-page header { margin-bottom: 24px !important; }
   .cart-page header h2 { font-size: 1.75rem !important; }
   .cart-row { grid-template-columns: 60px minmax(0, 1fr) !important; gap: 10px !important; padding: 12px !important; }
-  .cart-row > div:last-child { grid-column: 1 / -1 !important; align-items: center !important; flex-direction: row !important; justify-content: space-between !important; }
   .cart-row > a { width: 60px !important; height: 60px !important; }
   .cart-row strong { font-size: .95rem !important; }
-  .cart-qty { grid-column: 1 / -1; width: 148px; min-height: 46px; grid-template-columns: 48px 1fr 48px; }
+  .cart-controls { grid-column: 1 / -1 !important; justify-content: space-between !important; align-items: center !important; }
+  .cart-qty { width: 148px; min-height: 46px; grid-template-columns: 48px 1fr 48px; }
   .cart-qty button { width: 48px; height: 46px; font-size: 1.35rem; }
   .cart-qty span { min-width: 0; }
-  .cart-row > div:last-child { grid-column: 1 / -1 !important; }
-  .cart-row > div:last-child .cart-qty { flex-shrink: 0; }
 
   .auth-page { padding: 80px 16px 40px !important; }
   .auth-page h2 { font-size: 1.6rem !important; }
@@ -572,7 +570,6 @@ a:hover .placeholder-frame, .product-card:hover .placeholder-frame { background:
   .collection-card .photo-placeholder { aspect-ratio: 1; }
   .cart-row { grid-template-columns: 60px minmax(0, 1fr); text-align: left; }
   .cart-row > a { width: 60px; height: 60px; }
-  .cart-row .cart-qty { grid-column: 1 / -1; width: 148px; }
   .mobile-quick-card { flex: 0 0 120px; }
 
   /* Catalog: 2 колонки даже на узких */
