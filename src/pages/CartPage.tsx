@@ -233,7 +233,7 @@ export default function CartPage() {
             <section className="checkout-section" aria-labelledby="recipient-heading">
               <h3 id="recipient-heading">Получатель</h3>
               <div className="checkout-fields">
-                <label>Имя и фамилия<input autoComplete="name" value={recipientName} onChange={(event) => setRecipientName(event.target.value)} required /></label>
+                <label>ФИО получателя<input autoComplete="name" value={recipientName} onChange={(event) => setRecipientName(event.target.value)} required /></label>
                 <label>Телефон<input type="tel" autoComplete="tel" value={recipientPhone} onChange={(event) => setRecipientPhone(event.target.value)} required /></label>
                 <label>Email<input type="email" autoComplete="email" value={recipientEmail} onChange={(event) => setRecipientEmail(event.target.value)} required /></label>
               </div>

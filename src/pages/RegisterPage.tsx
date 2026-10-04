@@ -13,7 +13,9 @@ export default function RegisterPage() {
   const requestedRedirect = searchParams.get('redirect') || '/profile'
   const redirect = requestedRedirect.startsWith('/') && !requestedRedirect.startsWith('//') ? requestedRedirect : '/profile'
   const [email, setEmail] = useState('')
-  const [name, setName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [middleName, setMiddleName] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [dataProcessingConsent, setDataProcessingConsent] = useState(false)
@@ -29,7 +31,8 @@ export default function RegisterPage() {
     setError('')
     setLoading(true)
     try {
-      await register(email, name, password, phone.trim(), dataProcessingConsent)
+      const fullName = [lastName, firstName, middleName].map((s) => s.trim()).filter(Boolean).join(' ')
+      await register(email, fullName, password, phone.trim(), dataProcessingConsent)
       navigate(redirect)
     } catch (err) {
       setError((err as Error).message)
@@ -45,7 +48,9 @@ export default function RegisterPage() {
         <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 300, fontSize: '2rem', textAlign: 'center', marginBottom: '8px' }}>Регистрация</h2>
         <p style={{ textAlign: 'center', opacity: .6, marginBottom: '32px' }}>{redirect === '/cart' ? 'Создайте аккаунт, чтобы оформить заказ' : 'Создайте аккаунт для заказов'}</p>
         <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <input type="text" placeholder="Имя" value={name} onChange={(e) => setName(e.target.value)} required style={{ padding: '14px 16px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/>
+          <input type="text" placeholder="Фамилия" autoComplete="family-name" value={lastName} onChange={(e) => setLastName(e.target.value)} required style={{ padding: '14px 16px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/>
+          <input type="text" placeholder="Имя" autoComplete="given-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required style={{ padding: '14px 16px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/>
+          <input type="text" placeholder="Отчество (если есть)" autoComplete="additional-name" value={middleName} onChange={(e) => setMiddleName(e.target.value)} style={{ padding: '14px 16px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/>
           <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ padding: '14px 16px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/>
           <input type="tel" placeholder="Телефон" value={phone} onChange={(e) => setPhone(e.target.value)} required pattern="[+()\d\s\-]{7,24}" title="Формат: +7 (999) 123-45-67" style={{ padding: '14px 16px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/>
           <input type="password" placeholder="Пароль (мин. 6 символов)" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} style={{ padding: '14px 16px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/>
