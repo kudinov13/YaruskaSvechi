@@ -29,7 +29,7 @@ export default function RegisterPage() {
     setError('')
     setLoading(true)
     try {
-      await register(email, name, password, phone || undefined, dataProcessingConsent)
+      await register(email, name, password, phone.trim(), dataProcessingConsent)
       navigate(redirect)
     } catch (err) {
       setError((err as Error).message)
@@ -47,7 +47,7 @@ export default function RegisterPage() {
         <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <input type="text" placeholder="Имя" value={name} onChange={(e) => setName(e.target.value)} required style={{ padding: '14px 16px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/>
           <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ padding: '14px 16px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/>
-          <input type="tel" placeholder="Телефон (необязательно)" value={phone} onChange={(e) => setPhone(e.target.value)} style={{ padding: '14px 16px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/>
+          <input type="tel" placeholder="Телефон" value={phone} onChange={(e) => setPhone(e.target.value)} required pattern="[+()\d\s\-]{7,24}" title="Формат: +7 (999) 123-45-67" style={{ padding: '14px 16px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/>
           <input type="password" placeholder="Пароль (мин. 6 символов)" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} style={{ padding: '14px 16px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/>
           <label className="legal-consent">
             <input type="checkbox" checked={dataProcessingConsent} onChange={(e) => setDataProcessingConsent(e.target.checked)} required/>

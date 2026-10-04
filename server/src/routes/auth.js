@@ -10,7 +10,7 @@ const registerSchema = z.object({
   email: z.string().email(),
   name: z.string().min(2),
   password: z.string().min(6),
-  phone: z.string().optional(),
+  phone: z.string().regex(/^[+()\d\s-]{7,24}$/, 'Некорректный формат телефона'),
   dataProcessingConsent: z.literal(true),
 })
 

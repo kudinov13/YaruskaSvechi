@@ -25,6 +25,7 @@ export default function CartPage() {
   const [recipientEmail, setRecipientEmail] = useState('')
   const [orderComment, setOrderComment] = useState('')
   const fragrances = useFragrances()
+  const [fragranceSheetOpen, setFragranceSheetOpen] = useState(false)
   const missingFragrance = items.some((item) => !item.fragrance)
   const [cityQuery, setCityQuery] = useState('')
   const [cities, setCities] = useState<DeliveryCity[]>([])
@@ -191,32 +192,37 @@ export default function CartPage() {
               <p className="eyebrow">Корзина</p>
               <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 300, fontSize: 'clamp(1.8rem, 3vw, 2.5rem)' }}>Оформление заказа</h2>
             </div>
-            <button type="button" onClick={clear} style={{ padding: '8px 16px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', cursor: 'pointer', fontFamily: 'inherit', fontSize: '.85rem' }}>Очистить корзину</button>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <button type="button" onClick={() => setFragranceSheetOpen(true)} style={{ padding: '8px 16px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', cursor: 'pointer', fontFamily: 'inherit', fontSize: '.85rem' }}>Каталог ароматов</button>
+              <button type="button" onClick={clear} style={{ padding: '8px 16px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', cursor: 'pointer', fontFamily: 'inherit', fontSize: '.85rem' }}>Очистить корзину</button>
+            </div>
           </header>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px' }}>
             {items.map((item) => (
-              <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '80px 1fr auto auto', gap: '16px', alignItems: 'center', padding: '16px', border: '1px solid rgba(91,45,35,.15)', background: 'rgba(255,255,255,.4)' }} className="cart-row">
-                <Link to={`/product/${item.productId || item.id}`} style={{ width: '80px', height: '80px', display: 'block', position: 'relative', overflow: 'hidden' }}>
-                  {item.image ? <img src={imgSrc(item.image)} alt={item.title} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} /> : <div className="placeholder-frame" style={{ width: '100%', height: '100%' }}><small>Фото</small></div>}
+              <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '80px minmax(0,1fr) auto 96px', gap: '16px', alignItems: 'center', padding: '16px', border: '1px solid rgba(91,45,35,.15)', background: 'rgba(255,255,255,.4)' }} className="cart-row">
+                <Link to={`/product/${item.productId || item.id}`} className="photo-placeholder tone-ruby" style={{ width: '80px', height: '80px', display: 'block', position: 'relative', overflow: 'hidden' }}>
+                  {item.image ? <img src={imgSrc(item.image)} alt={item.title} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} /> : <div className="placeholder-frame"><small>Фото</small></div>}
                 </Link>
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <Link to={`/product/${item.productId || item.id}`} style={{ fontWeight: 600, textDecoration: 'none', color: 'inherit' }}>{item.title}</Link>
                   <p style={{ fontSize: '.85rem', opacity: .6, marginTop: '4px' }}>{fmtPrice(item.price)} / шт</p>
-                  <label style={{ display: 'block', fontSize: '.8rem', opacity: .7, marginTop: '8px' }}>Аромат *
-                    <select value={item.fragrance || ''} onChange={(event) => { setFragrance(item.id, event.target.value); setOrderError('') }} required style={{ display: 'block', width: '100%', marginTop: '4px', padding: '6px 8px', border: item.fragrance ? '1px solid rgba(91,45,35,.2)' : '1px solid #8b2a2a', background: 'transparent', fontFamily: 'inherit', fontSize: '.85rem' }}>
-                      <option value="">Выберите аромат</option>
-                      {fragrances.map((fragrance) => <option key={fragrance.slug} value={fragrance.name}>{fragrance.name}</option>)}
-                    </select>
-                  </label>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginTop: '8px', flexWrap: 'wrap' }}>
+                    <label htmlFor={`fragrance-${item.id}`} style={{ fontSize: '.8rem', opacity: .7 }}>Аромат *</label>
+                    <button type="button" onClick={() => setFragranceSheetOpen(true)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '.75rem', textDecoration: 'underline', opacity: .6, padding: 0, fontFamily: 'inherit' }}>все ароматы</button>
+                  </div>
+                  <select id={`fragrance-${item.id}`} value={item.fragrance || ''} onChange={(event) => { setFragrance(item.id, event.target.value); setOrderError('') }} required style={{ display: 'block', width: '100%', marginTop: '4px', padding: '6px 8px', border: item.fragrance ? '1px solid rgba(91,45,35,.2)' : '1px solid #8b2a2a', background: 'transparent', fontFamily: 'inherit', fontSize: '.85rem' }}>
+                    <option value="">Выберите аромат</option>
+                    {fragrances.map((fragrance) => <option key={fragrance.slug} value={fragrance.name}>{fragrance.name}</option>)}
+                  </select>
                 </div>
                 <div className="cart-qty">
                   <button type="button" onClick={() => setQty(item.id, item.quantity - 1)} aria-label={`Уменьшить количество ${item.title}`}>−</button>
                   <span>{item.quantity}</span>
                   <button type="button" onClick={() => setQty(item.id, item.quantity + 1)} aria-label={`Увеличить количество ${item.title}`}>+</button>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-                  <strong>{fmtPrice(item.price * item.quantity)}</strong>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px', minWidth: 0 }}>
+                  <strong style={{ whiteSpace: 'nowrap' }}>{fmtPrice(item.price * item.quantity)}</strong>
                   <button type="button" onClick={() => remove(item.id)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '.8rem', opacity: .5, padding: 0 }}>Удалить</button>
                 </div>
               </div>
@@ -320,6 +326,38 @@ export default function CartPage() {
           </form>
         </div>
       </main>
+      {fragranceSheetOpen && <FragranceSheet fragrances={fragrances} onClose={() => setFragranceSheetOpen(false)} />}
     </>
+  )
+}
+
+function FragranceSheet({ fragrances, onClose }: { fragrances: ReturnType<typeof useFragrances>; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = ''
+    }
+  }, [onClose])
+
+  return (
+    <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Каталог ароматов" onClick={(event) => { if (event.target === event.currentTarget) onClose() }}>
+      <div className="fragrance-sheet">
+        <button type="button" className="fragrance-sheet-close" onClick={onClose} aria-label="Закрыть">✕</button>
+        <h2 className="fragrance-sheet-title">Ароматы</h2>
+        <p style={{ fontSize: '.85rem', opacity: .6 }}>Композиции, которыми мы наполняем свечи. Выберите по одному аромату для каждой свечи в корзине.</p>
+        <div className="fragrance-sheet-list">
+          {fragrances.map((fragrance) => (
+            <article key={fragrance.slug} className="fragrance-sheet-item">
+              <h3>{fragrance.name}</h3>
+              {fragrance.description.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+            </article>
+          ))}
+        </div>
+        <p style={{ marginTop: '16px', fontSize: '.8rem', opacity: .6 }}>Полная версия каталога — на странице <Link to="/fragrances" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>«Ароматы»</Link>.</p>
+      </div>
+    </div>
   )
 }
