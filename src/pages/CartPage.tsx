@@ -201,7 +201,7 @@ export default function CartPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px' }}>
             {items.map((item) => (
               <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '80px minmax(0,1fr) auto', gap: '16px', alignItems: 'center', padding: '16px', border: '1px solid rgba(91,45,35,.15)', background: 'rgba(255,255,255,.4)' }} className="cart-row">
-                <Link to={`/product/${item.productId || item.id}`} className="photo-placeholder tone-ruby" style={{ width: '80px', height: '80px', display: 'block', position: 'relative', overflow: 'hidden', alignSelf: 'start' }}>
+                <Link to={`/product/${item.productId || item.id}`} className="photo-placeholder tone-ruby" style={{ width: '80px', height: '80px', display: 'block', position: 'relative', overflow: 'hidden' }}>
                   {item.image ? <img src={imgSrc(item.image)} alt={item.title} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} /> : <div className="placeholder-frame"><small>Фото</small></div>}
                 </Link>
                 <div style={{ minWidth: 0 }}>
