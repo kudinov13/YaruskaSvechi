@@ -31,7 +31,7 @@ const candleSchema = z.object({
   oldPrice: z.number().int().min(0).optional(),
   stock: z.number().int().min(0).optional(),
   shippingWeightGrams: z.number().int().positive().nullable().optional(),
-  shippingPackagePreset: z.enum(['p25x25x10', 'p50x25x15', 'p40x30x20', 'p50x30x30']).nullable().optional(),
+  shippingPackagePreset: z.enum(['p25x25x10', 'p25x25x15', 'p40x30x20', 'p50x30x30']).nullable().optional(),
   categoryId: z.string(),
   images: z.array(z.string()).optional(),
   featured: z.boolean().optional(),

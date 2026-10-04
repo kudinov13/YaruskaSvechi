@@ -525,11 +525,11 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
         <label>Профиль упаковки СДЭК<select value={packagePreset} onChange={(e) => setPackagePreset(e.target.value)} required style={{ display: 'block', width: '100%', padding: '10px', marginTop: '4px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}>
           <option value="">Не выбран</option>
           <option value="p25x25x10">25 × 25 × 10 см — до 2 кг</option>
-          <option value="p50x25x15">50 × 25 × 15 см — до 3 кг</option>
+          <option value="p25x25x15">25 × 25 × 15 см — до 3 кг</option>
           <option value="p40x30x20">40 × 30 × 20 см — до 3 кг</option>
           <option value="p50x30x30">50 × 30 × 30 см — до 5 кг</option>
         </select></label>
-        <label>Фактический вес упакованного товара (г)<input type="number" min="1" max={packagePreset === 'p25x25x10' ? 2000 : packagePreset === 'p50x25x15' || packagePreset === 'p40x30x20' ? 3000 : packagePreset === 'p50x30x30' ? 5000 : undefined} step="1" value={weightGrams} onChange={(e) => setWeightGrams(e.target.value)} required placeholder="Точный вес после упаковки" style={{ display: 'block', width: '100%', padding: '10px', marginTop: '4px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/></label>
+        <label>Фактический вес упакованного товара (г)<input type="number" min="1" max={packagePreset === 'p25x25x10' ? 2000 : packagePreset === 'p25x25x15' || packagePreset === 'p40x30x20' ? 3000 : packagePreset === 'p50x30x30' ? 5000 : undefined} step="1" value={weightGrams} onChange={(e) => setWeightGrams(e.target.value)} required placeholder="Точный вес после упаковки" style={{ display: 'block', width: '100%', padding: '10px', marginTop: '4px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/></label>
         <p style={{ gridColumn: '1 / -1', fontSize: '.85rem', opacity: .7, margin: 0 }}>Нужны для расчёта СДЭК. Профиль задаёт максимальные габариты и вес; укажите только фактически измеренный вес после упаковки.</p>
       </div>
 

@@ -3,7 +3,7 @@ import { getCitiesByCode, getDeliveryPoints, quoteTariffs, suggestCities } from 
 
 export const PACKAGE_PRESETS = Object.freeze({
   p25x25x10: { length: 25, width: 25, height: 10, maxWeightGrams: 2000 },
-  p50x25x15: { length: 50, width: 25, height: 15, maxWeightGrams: 3000 },
+  p25x25x15: { length: 25, width: 25, height: 15, maxWeightGrams: 3000 },
   p40x30x20: { length: 40, width: 30, height: 20, maxWeightGrams: 3000 },
   p50x30x30: { length: 50, width: 30, height: 30, maxWeightGrams: 5000 },
 })
