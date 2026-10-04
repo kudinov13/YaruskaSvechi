@@ -143,8 +143,6 @@ export default function ProductPage() {
           <div>
             {item.category && <p className="eyebrow">{item.category.title}</p>}
             <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 300, fontSize: 'clamp(2rem, 4vw, 3rem)', marginBottom: '12px' }}>{item.title}</h1>
-            {item.notes && <p style={{ opacity: .7, marginBottom: '20px', fontSize: '1.1rem' }}>{item.notes}</p>}
-
             {item.variants && item.variants.length > 0 && (
               <fieldset className="product-variant-picker">
                 <legend>Цвет самовара</legend>
@@ -208,7 +206,7 @@ export default function ProductPage() {
               <button onClick={handleAdd} className="arrow-link" style={{ cursor: 'pointer', border: 'none', padding: '12px 24px' }}>
                 <span>{added ? 'Добавлено ✓' : 'В корзину'}</span>
               </button>
-              <button onClick={() => toggle({ id: item.id, title: item.title, price: item.price, image: item.images?.[0], notes: item.notes })} style={{ width: '44px', height: '44px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="В избранное">
+              <button onClick={() => toggle({ id: item.id, title: item.title, price: item.price, image: item.images?.[0] })} style={{ width: '44px', height: '44px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="В избранное">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill={isFav ? '#5b2d23' : 'none'} stroke="currentColor" strokeWidth="1.45" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20S4 15.5 4 9.5C4 6 8.5 4.5 12 8c3.5-3.5 8-2 8 1.5 0 6-8 10.5-8 10.5Z"/></svg>
               </button>
             </div>

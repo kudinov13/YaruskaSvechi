@@ -47,7 +47,6 @@ export default function FavoritesPage() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="#5b2d23" stroke="#5b2d23" strokeWidth="1.45" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20S4 15.5 4 9.5C4 6 8.5 4.5 12 8c3.5-3.5 8-2 8 1.5 0 6-8 10.5-8 10.5Z"/></svg>
               </button>
               <h3 style={{ marginTop: '12px' }}>{item.title}</h3>
-              {item.notes && <p>{item.notes}</p>}
               <strong>{fmtPrice(item.price)}</strong>
               <button onClick={() => add({ id: item.id, title: item.title, price: item.price, image: item.image })} className="arrow-link" style={{ marginTop: '10px', cursor: 'pointer', border: 'none', padding: '8px 14px' }}>
                 <span>В корзину</span>

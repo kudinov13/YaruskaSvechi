@@ -130,7 +130,6 @@ export default function AdminPage() {
                       {imgSrc(item) ? <img src={imgSrc(item)} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}/> : <div className="placeholder-frame"><small>{item.title}</small></div>}
                     </div>
                     <strong style={{ fontSize: '.9rem', display: 'block', lineHeight: 1.2 }}>{item.title}</strong>
-                    <p style={{ fontSize: '.75rem', opacity: .6, marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.notes}</p>
                     <p style={{ marginTop: '4px', fontSize: '.85rem' }}>{fmtPrice(item.price)}</p>
                     <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
                       <button onClick={() => { setEditing(item); setShowForm(true) }} style={{ flex: 1, minHeight: '36px', padding: '6px 4px', cursor: 'pointer', fontSize: '.78rem', fontFamily: 'inherit' }}>Изменить</button>
@@ -446,7 +445,6 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
   onCancel: () => void
 }) {
   const [title, setTitle] = useState(candle?.title || '')
-  const [notes, setNotes] = useState(candle?.notes || '')
   const [description, setDescription] = useState(candle?.description || '')
   const [price, setPrice] = useState(candle?.price?.toString() || '')
   const [oldPrice, setOldPrice] = useState(candle?.oldPrice?.toString() || '')
@@ -470,7 +468,7 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
     setSaving(true)
     try {
       await onSubmit({
-        title, notes, description, price: parseInt(price) || 0,
+        title, description, price: parseInt(price) || 0,
         oldPrice: oldPrice ? parseInt(oldPrice) : undefined,
         stock: parseInt(stock) || 0, categoryId, images, featured,
         shippingPackagePreset: packagePreset || null,
@@ -514,7 +512,6 @@ function CandleForm({ candle, categories, onUpload, onSubmit, onCancel }: {
     <form onSubmit={submit} style={{ border: '1px solid rgba(91,45,35,.2)', padding: '24px', marginBottom: '24px', background: 'rgba(255,255,255,.6)' }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
         <label>Название<input value={title} onChange={(e) => setTitle(e.target.value)} required style={{ display: 'block', width: '100%', padding: '10px', marginTop: '4px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/></label>
-        <label>Аромат (notes)<input value={notes} onChange={(e) => setNotes(e.target.value)} style={{ display: 'block', width: '100%', padding: '10px', marginTop: '4px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/></label>
         <label>Цена (₽)<input type="number" value={price} onChange={(e) => setPrice(e.target.value)} required style={{ display: 'block', width: '100%', padding: '10px', marginTop: '4px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/></label>
         <label>Старая цена<input type="number" value={oldPrice} onChange={(e) => setOldPrice(e.target.value)} style={{ display: 'block', width: '100%', padding: '10px', marginTop: '4px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/></label>
         <label>Остаток<input type="number" value={stock} onChange={(e) => setStock(e.target.value)} style={{ display: 'block', width: '100%', padding: '10px', marginTop: '4px', border: '1px solid rgba(91,45,35,.2)', background: 'transparent', fontFamily: 'inherit' }}/></label>

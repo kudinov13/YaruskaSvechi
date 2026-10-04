@@ -166,7 +166,6 @@ function HomePage() {
               <Link className="mobile-quick-card" to={`/product/${item.id}`} key={item.id}>
                 <PhotoPlaceholder label={item.title} tone={TONES[index % TONES.length]} src={imgUrl(item.images?.[0])}/>
                 <h3>{item.title}</h3>
-                <p>{item.notes}</p>
                 <strong>{fmtPrice(item.price)}</strong>
               </Link>
             ))}
@@ -187,7 +186,7 @@ function HomePage() {
                   <PhotoPlaceholder label={item.title} tone={TONES[index % TONES.length]} src={imgUrl(item.images?.[0])}/>
                 </Link>
                 <div className="card-meta">
-                  <div><h3>{item.title}</h3><p>{item.notes}</p><strong>{fmtPrice(item.price)}</strong></div>
+                  <div><h3>{item.title}</h3><strong>{fmtPrice(item.price)}</strong></div>
                   {item.variants?.length ? (
                     <Link to={`/product/${item.id}`} className="card-add-btn variant-choice-link"><span>Выбрать цвет</span></Link>
                   ) : (
@@ -233,7 +232,7 @@ function HomePage() {
                   </Link>
                   <button className={favorites.includes(index) ? 'favorite is-active' : 'favorite'} type="button" aria-label={`Добавить ${item.title} в избранное`} onClick={() => toggleFavorite(index)}><Icon name="heart" size={15}/></button>
                 </div>
-                <h3>{item.title}</h3><p>{item.notes}</p><strong>{fmtPrice(item.price)}</strong>
+                <h3>{item.title}</h3><strong>{fmtPrice(item.price)}</strong>
               </article>
             ))}
           </div>

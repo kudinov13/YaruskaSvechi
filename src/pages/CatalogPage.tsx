@@ -57,9 +57,8 @@ export default function CatalogPage() {
     if (q) {
       const query = q.toLowerCase()
       const inTitle = item.title.toLowerCase().includes(query)
-      const inNotes = (item.notes || '').toLowerCase().includes(query)
       const inDesc = (item.description || '').toLowerCase().includes(query)
-      if (!inTitle && !inNotes && !inDesc) return false
+      if (!inTitle && !inDesc) return false
     }
     return true
   })
@@ -113,14 +112,13 @@ export default function CatalogPage() {
                   </div>
                 </Link>
                 <button
-                  onClick={() => toggle({ id: item.id, title: item.title, price: item.price, image: item.images?.[0], notes: item.notes })}
+                  onClick={() => toggle({ id: item.id, title: item.title, price: item.price, image: item.images?.[0] })}
                   className="card-fav"
                   aria-label={isFav ? 'Убрать из избранного' : 'В избранное'}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill={isFav ? '#5b2d23' : 'none'} stroke="currentColor" strokeWidth="1.45" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20S4 15.5 4 9.5C4 6 8.5 4.5 12 8c3.5-3.5 8-2 8 1.5 0 6-8 10.5-8 10.5Z"/></svg>
                 </button>
                 <h3>{item.title}</h3>
-                <p>{item.notes || ''}</p>
                 <strong>{fmtPrice(item.price)}</strong>
                 {item.variants?.length ? (
                   <Link to={`/product/${item.id}`} className="card-add-btn variant-choice-link"><span>Выбрать цвет</span></Link>
