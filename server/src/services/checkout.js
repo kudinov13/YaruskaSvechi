@@ -54,26 +54,24 @@ export async function prepareCart(items) {
     if (!Number.isInteger(weight) || weight <= 0 || !preset) {
       throw new CheckoutError(`Для товара «${candle.title}» не настроены вес и допустимый формат упаковки`)
     }
-    const packageWeight = weight * item.quantity
-    if (!Number.isSafeInteger(packageWeight) || packageWeight > preset.maxWeightGrams) {
-      throw new CheckoutError(`Вес позиции «${candle.title}» превышает вместимость упаковки ${presetKey}`)
-    }
     const title = variant ? `${candle.title} — ${variant.name}` : candle.title
     const lineTotal = candle.price * item.quantity
     if (!Number.isSafeInteger(lineTotal)) throw new CheckoutError('Сумма заказа превышает допустимое значение')
     goodsTotal += lineTotal
     lines.push({ candleId: candle.id, title, price: candle.price, quantity: item.quantity })
-    packages.push({
-      ...preset,
-      weight: packageWeight,
-      items: [{
-        title,
-        slug: candle.slug,
-        quantity: item.quantity,
-        price: candle.price,
+    for (let i = 0; i < item.quantity; i += 1) {
+      packages.push({
+        ...preset,
         weight,
-      }],
-    })
+        items: [{
+          title,
+          slug: candle.slug,
+          quantity: 1,
+          price: candle.price,
+          weight,
+        }],
+      })
+    }
   }
 
   if (!Number.isSafeInteger(goodsTotal) || goodsTotal <= 0) throw new CheckoutError('Некорректная сумма товаров')
@@ -156,28 +154,24 @@ export async function prepareStoredShipment(orderId) {
     orderBy: { id: 'asc' },
   })
   if (!items.length) throw new CheckoutError('Заказ не содержит товаров')
-  return items.map(item => {
+  return items.flatMap(item => {
     const candle = item.candle
     const preset = PACKAGE_PRESETS[candle?.shippingPackagePreset]
     const weight = candle?.shippingWeightGrams
     if (!Number.isInteger(weight) || weight <= 0 || !preset) {
       throw new CheckoutError(`Для товара «${item.title}» не настроены вес и допустимый формат упаковки`)
     }
-    const packageWeight = weight * item.quantity
-    if (!Number.isSafeInteger(packageWeight) || packageWeight > preset.maxWeightGrams) {
-      throw new CheckoutError(`Вес позиции «${item.title}» превышает вместимость упаковки ${candle.shippingPackagePreset}`)
-    }
-    return {
+    return Array.from({ length: item.quantity }, () => ({
       ...preset,
-      weight: packageWeight,
+      weight,
       items: [{
         title: item.title,
         slug: candle.slug,
-        quantity: item.quantity,
+        quantity: 1,
         price: item.price,
         weight,
       }],
-    }
+    }))
   })
 }
 
